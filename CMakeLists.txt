@@ -57,62 +57,6 @@ if(NOT CMAKE_BUILD_TYPE)
 	      FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
-
-include(CheckCXXSourceCompiles)
-
-check_cxx_source_compiles(
-	"int main() { volatile int v=0; return __sync_bool_compare_and_swap(&v,0,1); }"
-	CPPDB_HAS_GCC_SYNC)
-if(CPPDB_HAS_GCC_SYNC)
-	add_definitions(-DCPPDB_HAS_GCC_SYNC)
-endif()
-
-check_cxx_source_compiles(
-	"#include <bits/atomicity.h> 
-	using __gnu_cxx::__exchange_and_add;
-	int main(){ volatile int x=0; return __exchange_and_add(&x,1);}"
-	CPPDB_HAVE_GCC_BITS_EXCHANGE_AND_ADD)
-if(CPPDB_HAVE_GCC_BITS_EXCHANGE_AND_ADD)
-	add_definitions(-DCPPDB_HAVE_GCC_BITS_EXCHANGE_AND_ADD)
-endif()
-
-check_cxx_source_compiles(
-	"#include <ext/atomicity.h> 
-	using __gnu_cxx::__exchange_and_add;
-	int main(){ volatile int x=0; return __exchange_and_add(&x,1);}"
-	CPPDB_HAVE_GCC_EXT_EXCHANGE_AND_ADD)
-if(CPPDB_HAVE_GCC_EXT_EXCHANGE_AND_ADD)
-	add_definitions(-DCPPDB_HAVE_GCC_EXT_EXCHANGE_AND_ADD)
-endif()
-
-check_cxx_source_compiles(
-	"#include <sys/types.h>
-	#include <machine/atomic.h>
-	int main() { volatile unsigned v=0; return atomic_cmpset_int(&v,1,0); }"
-	CPPDB_HAVE_FREEBSD_ATOMIC)
-
-if(CPPDB_HAVE_FREEBSD_ATOMIC)
-	add_definitions(-DCPPDB_HAVE_FREEBSD_ATOMIC)
-endif()
-
-check_cxx_source_compiles(
-	"#include <atomic.h>
-	int main() { volatile unsigned v=0; return atomic_add_int_nv(&v,1); }"
-	CPPDB_HAVE_SOLARIS_ATOMIC)
-if(CPPDB_HAVE_SOLARIS_ATOMIC)
-	add_definitions(-DCPPDB_HAVE_SOLARIS_ATOMIC)
-endif()
-
-
-check_cxx_source_compiles(
-	"#include <libkern/OSAtomic.h>
-	int main() { volatile int v=0; return OSAtomicAdd32(1,&v); }"
-	CPPDB_HAVE_MAC_OS_X_ATOMIC)
-
-if(CPPDB_HAVE_MAC_OS_X_ATOMIC)
-	add_definitions(-DCPPDB_HAVE_MAC_OS_X_ATOMIC)
-endif()
-
 # Backend configuration
 
 set(INTERNAL_SOURCES)
@@ -182,7 +126,6 @@ set(CPPDB_SRC
 	src/pool.cpp
 	src/backend.cpp
 	src/frontend.cpp
-	src/atomic_counter.cpp
 	${INTERNAL_SOURCES}
 )
 

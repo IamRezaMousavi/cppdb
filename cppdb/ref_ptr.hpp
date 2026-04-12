@@ -1,7 +1,8 @@
 #ifndef CPPDB_REF_PTR_H
 #define CPPDB_REF_PTR_H
 #include <cppdb/errors.hpp>
-#include <cppdb/atomic_counter.hpp>
+
+#include <atomic>
 
 namespace cppdb {
 	///
@@ -157,7 +158,7 @@ namespace cppdb {
 			delete p;
 		}
 	private:
-		atomic_counter count_;
+		std::atomic_int count_;
 	};
 } // cppdb
 #endif
