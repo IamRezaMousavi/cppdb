@@ -2,9 +2,10 @@
 #define CPPDB_SHARED_OBJECT_HPP
 
 #include <cppdb/defs.h>
-#include <cppdb/ref_ptr.hpp>
+#include <cppdb/errors.hpp>
 
 #include <memory>
+#include <string>
 
 namespace cppdb {
 
@@ -12,7 +13,7 @@ namespace cppdb {
 /// \brief This class allows to load and unload shared objects in simple and exception safe way.
 ///
 class CPPDB_API shared_object {
-	shared_object() : handle_(0) {}
+	shared_object() {}
 	shared_object(std::string name, void *h);
 	shared_object(const shared_object &);
 	void operator=(const shared_object &);
@@ -55,7 +56,7 @@ public:
 
 private:
 	std::string dlname_;
-	void *handle_;
+	void *handle_ = nullptr;
 };
 
 } // namespace cppdb

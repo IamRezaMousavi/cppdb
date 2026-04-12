@@ -2,7 +2,6 @@
 #define CPPDB_DRIVER_MANAGER_HPP
 
 #include <cppdb/defs.h>
-#include <cppdb/ref_ptr.hpp>
 
 #include <map>
 #include <mutex>
@@ -31,7 +30,7 @@ public:
 	///
 	/// Install new driver \a drv named \a name to the manager.
 	///
-	void install_driver(const std::string &name, ref_ptr<backend::driver> drv);
+	void install_driver(const std::string &name, std::shared_ptr<backend::driver> drv);
 	///
 	/// Unload all drivers that have no more open connections.
 	///
@@ -67,9 +66,9 @@ private:
 #endif
 	driver_manager();
 
-	ref_ptr<backend::driver> load_driver(const connection_info &ci);
+	std::shared_ptr<backend::driver> load_driver(const connection_info &ci);
 
-	typedef std::map<std::string, ref_ptr<backend::driver> > drivers_type;
+	typedef std::map<std::string, std::shared_ptr<backend::driver> > drivers_type;
 	std::vector<std::string> search_paths_;
 	bool no_default_directory_;
 	drivers_type drivers_;

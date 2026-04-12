@@ -169,9 +169,6 @@ public:
 	loadable_driver() {
 		drivers++;
 	}
-	bool in_use() {
-		return connections > 0;
-	}
 	connection *open(const cppdb::connection_info &cs) {
 		return new connection(cs);
 	}

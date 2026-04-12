@@ -58,11 +58,10 @@ backend::connection *driver_manager::connect(const std::string &str) {
 }
 
 backend::connection *driver_manager::connect(const connection_info &conn) {
-	ref_ptr<backend::driver> drv_ptr;
-	drivers_type::iterator p;
+	std::shared_ptr<backend::driver> drv_ptr;
 	{ // get driver
 		std::lock_guard<std::mutex> lock(lock_);
-		p = drivers_.find(conn.driver);
+		auto p = drivers_.find(conn.driver);
 		if (p != drivers_.end()) {
 			drv_ptr = p->second;
 		} else {
@@ -73,14 +72,15 @@ backend::connection *driver_manager::connect(const connection_info &conn) {
 	return drv_ptr->connect(conn);
 }
 void driver_manager::collect_unused() {
-	std::list<ref_ptr<backend::driver> > garbage;
+	std::list<std::shared_ptr<backend::driver> > garbage;
 	{
 		std::lock_guard<std::mutex> lock(lock_);
-		drivers_type::iterator p = drivers_.begin(), tmp;
+		auto p = drivers_.begin();
 		while (p != drivers_.end()) {
-			if (!p->second->in_use()) {
+			if (p->second.unique()) {
+				// driver not in used
 				garbage.push_back(p->second);
-				tmp = p;
+				auto tmp = p;
 				++p;
 				drivers_.erase(tmp);
 			} else {
@@ -118,7 +118,7 @@ void driver_manager::collect_unused() {
 
 #endif
 
-ref_ptr<backend::driver> driver_manager::load_driver(connection_info const &conn) {
+std::shared_ptr<backend::driver> driver_manager::load_driver(connection_info const &conn) {
 	std::vector<std::string> so_names;
 	std::string module;
 	std::vector<std::string> search_paths = search_paths_;
@@ -147,11 +147,11 @@ ref_ptr<backend::driver> driver_manager::load_driver(connection_info const &conn
 			so_names.push_back(so_name2);
 		}
 	}
-	ref_ptr<backend::driver> drv = new so_driver(conn.driver, so_names);
+	std::shared_ptr<backend::driver> drv = std::make_shared<so_driver>(conn.driver, so_names);
 	return drv;
 }
 
-void driver_manager::install_driver(const std::string &name, ref_ptr<backend::driver> drv) {
+void driver_manager::install_driver(const std::string &name, std::shared_ptr<backend::driver> drv) {
 	if (!drv) {
 		throw cppdb_error("cppdb::driver_manager::install_driver: Can't install empty driver");
 	}
@@ -186,17 +186,20 @@ struct initializer {
 	initializer() {
 		driver_manager::instance();
 #ifdef CPPDB_WITH_SQLITE3
-		driver_manager::instance().install_driver("sqlite3", new backend::static_driver(cppdb_sqlite3_get_connection));
+		driver_manager::instance().install_driver(
+			"sqlite3", std::make_shared<backend::static_driver>(cppdb_sqlite3_get_connection));
 #endif
 #ifdef CPPDB_WITH_ODBC
-		driver_manager::instance().install_driver("odbc", new backend::static_driver(cppdb_odbc_get_connection));
+		driver_manager::instance().install_driver("odbc",
+												  std::make_shared<backend::static_driver>(cppdb_odbc_get_connection));
 #endif
 #ifdef CPPDB_WITH_PQ
-		driver_manager::instance().install_driver("postgresql",
-												  new backend::static_driver(cppdb_postgresql_get_connection));
+		driver_manager::instance().install_driver(
+			"postgresql", std::make_shared<backend::static_driver>(cppdb_postgresql_get_connection));
 #endif
 #ifdef CPPDB_WITH_MYSQL
-		driver_manager::instance().install_driver("mysql", new backend::static_driver(cppdb_mysql_get_connection));
+		driver_manager::instance().install_driver("mysql",
+												  std::make_shared<backend::static_driver>(cppdb_mysql_get_connection));
 #endif
 	}
 

@@ -53,8 +53,7 @@ then "libcppdb_xyz.so" where V is the current CppDB library soname.
 
 Of course if you want to link your module statically only, you do not have to create this single entry point
 function, you may derive from  cppdb::backend::driver class such as its \ref cppdb::backend::driver::open() "open()" function
-would return a new connection object and \ref cppdb::backend::driver::in_use() "in_use()" function would always return
-true so the module would not be "unloaded".
+would return a new connection object.
 
 Such module can be installed using \ref cppdb::driver_manager driver_manager singleton class using its \ref cppdb::driver_manager::install_driver() "install_driver()" member function. For example:
 
@@ -64,7 +63,6 @@ Such module can be installed using \ref cppdb::driver_manager driver_manager sin
     cppdb::backend::connection *open(cppdb::connection_info const &ci) {
        return new my_cool_sql::connection(ci);
     }
-    bool in_use() { return true; }
  };
  ...
  cppdb::driver_manager::instance().install_driver("mycoolsql",new my_cool_sql_driver());

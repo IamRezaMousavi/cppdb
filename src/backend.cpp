@@ -232,7 +232,7 @@ ref_ptr<pool> connection::get_pool() {
 void connection::set_pool(ref_ptr<pool> p) {
 	pool_ = p;
 }
-void connection::set_driver(ref_ptr<loadable_driver> p) {
+void connection::set_driver(std::shared_ptr<loadable_driver> p) {
 	driver_ = p;
 }
 void connection::clear_cache() {
@@ -258,7 +258,7 @@ void connection::dispose(connection *c) {
 		c->clear_cache();
 		// Make sure that driver would not be
 		// destoryed destructor of connection exits
-		ref_ptr<loadable_driver> driver = c->driver_;
+		std::shared_ptr<loadable_driver> driver = c->driver_;
 		delete c;
 		driver.reset();
 	}
@@ -267,20 +267,14 @@ void connection::dispose(connection *c) {
 connection *driver::connect(const connection_info &cs) {
 	return open(cs);
 }
-bool loadable_driver::in_use() {
-	return use_count() > 1;
-}
 connection *loadable_driver::connect(const connection_info &cs) {
 	connection *c = open(cs);
-	c->set_driver(ref_ptr<loadable_driver>(this));
+	c->set_driver(shared_from_this());
 	return c;
 }
 
 static_driver::static_driver(connect_function_type c) : connect_(c) {}
 static_driver::~static_driver() {}
-bool static_driver::in_use() {
-	return true;
-}
 backend::connection *static_driver::open(const connection_info &ci) {
 	return connect_(ci);
 }

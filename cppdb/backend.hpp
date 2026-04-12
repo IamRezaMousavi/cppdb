@@ -410,18 +410,13 @@ class connection;
 /// given connection string, custom drivers can be are installed using this
 /// class
 ///
-class CPPDB_API driver : public ref_counted {
+class CPPDB_API driver {
 	driver(const driver &);
 	void operator=(const driver &);
 
 public:
 	driver() {}
 	virtual ~driver() {}
-	///
-	/// Return true if the driver in use (i.e. if there is any open connection exist (connection object)
-	/// so it can't be removed from the driver
-	///
-	virtual bool in_use() = 0;
 	///
 	/// Create a connection object - should be implemented by driver
 	///
@@ -436,16 +431,12 @@ public:
 ///
 /// \brief This class represents a driver that can be unloaded from the driver_manager.
 ///
-class CPPDB_API loadable_driver : public driver {
+class CPPDB_API loadable_driver : public driver, public std::enable_shared_from_this<loadable_driver> {
 	loadable_driver(const loadable_driver &);
 	void operator=(const loadable_driver &);
 
 public:
 	loadable_driver() {}
-	///
-	/// Returns true if any of generated connections still exits
-	///
-	virtual bool in_use();
 	virtual ~loadable_driver() {}
 
 	///
@@ -477,10 +468,6 @@ public:
 	static_driver(connect_function_type c);
 	~static_driver();
 	///
-	/// Always returns true as this driver cannot be unloaded
-	///
-	bool in_use();
-	///
 	/// Create new connection - basically calls the function to create the object
 	///
 	backend::connection *open(const connection_info &ci);
@@ -502,7 +489,7 @@ public:
 	/// \cond INTERNAL
 	void set_pool(ref_ptr<pool> p);
 	ref_ptr<pool> get_pool();
-	void set_driver(ref_ptr<loadable_driver> drv);
+	void set_driver(std::shared_ptr<loadable_driver> drv);
 	static void dispose(connection *c);
 	ref_ptr<statement> prepare(const std::string &q);
 	ref_ptr<statement> get_prepared_statement(const std::string &q);
@@ -611,7 +598,7 @@ private:
 	struct data;
 	std::unique_ptr<data> d;
 	statements_cache cache_;
-	ref_ptr<loadable_driver> driver_;
+	std::shared_ptr<loadable_driver> driver_;
 	ref_ptr<pool> pool_;
 	unsigned default_is_prepared_ : 1;
 	unsigned once_called_ : 1;
