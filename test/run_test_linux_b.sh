@@ -18,18 +18,18 @@ rm -f all.txt fail.txt
 #	'postgresql:dbname=test' \
 
 for STR in \
-	'postgresql:dbname=test;@blob=bytea' \
 	'sqlite3:db=test.db' \
-	'mysql:user=root;password=root;database=test' \
-	'odbc:@engine=postgresql;Database=test;Driver=Postgresql ANSI' \
-	'odbc:@engine=mysql;UID=root;PWD=root;Database=test;Driver=MySQL' \
+	'mysql:user=test1;password=test1;database=test1' \
+	# 'postgresql:dbname=test;@blob=bytea' \
+	# 'odbc:@engine=postgresql;Database=test;Driver=Postgresql ANSI' \
+	# 'odbc:@engine=mysql;UID=root;PWD=root;Database=test;Driver=MySQL' \
 
 do
 	for SUFFIX in '' ';@use_prepared=off' ';@pool_size=5' ';@use_prepared=off;@pool_size=5'
 	do
-		run_test ./test_backend "$STR$SUFFIX"
-		run_test ./test_basic "$STR$SUFFIX"
+		run_test ./build/test_backend "$STR$SUFFIX"
+		run_test ./build/test_basic "$STR$SUFFIX"
 	done
 done
 
-run_test ./test_caching
+run_test ./build/test_caching

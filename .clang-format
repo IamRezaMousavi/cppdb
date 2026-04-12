@@ -1,0 +1,46 @@
+BasedOnStyle:  Google
+AccessModifierOffset: -4
+AlignEscapedNewlines: Left
+AllowShortBlocksOnASingleLine: Empty
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+BraceWrapping:
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+BreakBeforeBinaryOperators: NonAssignment
+ColumnLimit:     120
+
+IncludeBlocks:   Regroup
+IncludeCategories:
+  - Regex:           '^<.*\/.*>'
+    Priority:        1
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '^<.*\.h>'
+    Priority:        2
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '^<.*'
+    Priority:        3
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '.*'
+    Priority:        4
+    SortPriority:    0
+    CaseSensitive:   false
+
+IndentCaseLabels: false
+IndentExternBlock: NoIndent
+IndentGotoLabels: false
+IndentPPDirectives: None
+IndentWidth:     4
+InsertNewlineAtEOF: true
+PointerAlignment: Right
+QualifierAlignment: Left
+ReferenceAlignment: Right
+SpacesBeforeTrailingComments: 1
+TabWidth:        4
+UseTab:          Always

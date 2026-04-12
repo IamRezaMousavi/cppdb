@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.10)
 project(cppdb)
 
 set(CPPDB_MAJOR 0)
@@ -21,10 +21,10 @@ option(DISABLE_MYSQL	"Link mysql backend into the libcppdb" OFF)
 option(DISABLE_ODBC	"Link odbc backend into the libcppdb" OFF)
 
 
-option(SQLITE_BACKEND_INTERNAL	"Link sqlite3 backend into the libcppdb" OFF)
+option(SQLITE_BACKEND_INTERNAL	"Link sqlite3 backend into the libcppdb" ON)
 option(PQ_BACKEND_INTERNAL 	"Link postgresql backend into the libcppdb" OFF)
-option(MYSQL_BACKEND_INTERNAL	"Link mysql backend into the libcppdb" OFF)
-option(ODBC_BACKEND_INTERNAL	"Link odbc backend into the libcppdb" ON)
+option(MYSQL_BACKEND_INTERNAL	"Link mysql backend into the libcppdb" ON)
+option(ODBC_BACKEND_INTERNAL	"Link odbc backend into the libcppdb" OFF)
 
 if(NOT LIBDIR)
 	set(LIBDIR lib CACHE STRING "Library installation directory" FORCE)
