@@ -44,4 +44,32 @@
 #  define CPPDB_DRIVER_API
 #endif
 
+#ifndef CPPDB_VERSION
+#define CPPDB_VERSION ""
+#endif
+
+#ifndef CPPDB_MAJOR
+#define CPPDB_MAJOR 0
+#endif
+
+#ifndef CPPDB_MINOR
+#define CPPDB_MINOR 0
+#endif
+
+#ifndef CPPDB_PATCH
+#define CPPDB_PATCH 0
+#endif
+
+#ifndef CPPDB_SOVERSION
+#define CPPDB_SOVERSION ""
+#endif
+
+#ifndef CPPDB_LIBRARY_PREFIX
+#define CPPDB_LIBRARY_PREFIX ""
+#endif
+
+#ifndef CPPDB_LIBRARY_SUFFIX
+#define CPPDB_LIBRARY_SUFFIX ""
+#endif
+
 #endif
