@@ -1,20 +1,3 @@
-///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-//  Copyright (C) 2010-2011  Artyom Beilis (Tonkikh) <artyomtnk@yahoo.com>     
-//                                                                             
-//  Distributed under:
-//
-//                   the Boost Software License, Version 1.0.
-//              (See accompanying file LICENSE_1_0.txt or copy at 
-//                     http://www.boost.org/LICENSE_1_0.txt)
-//
-//  or (at your opinion) under:
-//
-//                               The MIT License
-//                 (See accompanying file MIT.txt or a copy at
-//              http://www.opensource.org/licenses/mit-license.php)
-//
-///////////////////////////////////////////////////////////////////////////////
 #ifndef CPPDB_BACKEND_H
 #define CPPDB_BACKEND_H
 #include <iosfwd>
@@ -24,13 +7,13 @@
 #include <map>
 #include <typeinfo>
 #include <cppdb/defs.h>
-#include <cppdb/errors.h>
-#include <cppdb/ref_ptr.h>
-#include <cppdb/connection_specific.h>
+#include <cppdb/errors.hpp>
+#include <cppdb/ref_ptr.hpp>
+#include <cppdb/connection_specific.hpp>
 
 // Borland errors about unknown pool-type without this include.
 #ifdef __BORLANDC__
-#include <cppdb/pool.h>
+#include <cppdb/pool.hpp>
 #endif
 
 namespace cppdb {
