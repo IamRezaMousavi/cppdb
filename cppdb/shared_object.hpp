@@ -4,12 +4,14 @@
 #include <cppdb/defs.h>
 #include <cppdb/ref_ptr.hpp>
 
+#include <memory>
+
 namespace cppdb {
 
 ///
 /// \brief This class allows to load and unload shared objects in simple and exception safe way.
 ///
-class CPPDB_API shared_object : public ref_counted {
+class CPPDB_API shared_object {
 	shared_object() : handle_(0) {}
 	shared_object(std::string name, void *h);
 	shared_object(const shared_object &);
@@ -20,7 +22,7 @@ public:
 	///
 	/// Load shared object, returns empty pointer if the object does not exits or not loadable
 	///
-	static ref_ptr<shared_object> open(const std::string &name);
+	static std::shared_ptr<shared_object> open(const std::string &name);
 	///
 	/// Resolve symbol \a name and return pointer on it, throws cppdb_error if the symbol can't be resolved
 	///

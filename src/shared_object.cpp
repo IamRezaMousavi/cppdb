@@ -33,8 +33,8 @@ shared_object::shared_object(std::string name, void *h) : dlname_(name), handle_
 shared_object::~shared_object() {
 	dlclose(handle_);
 }
-ref_ptr<shared_object> shared_object::open(const std::string &name) {
-	ref_ptr<shared_object> dl;
+std::shared_ptr<shared_object> shared_object::open(const std::string &name) {
+	std::shared_ptr<shared_object> dl;
 	void *h = dlopen(name.c_str(), RTLD_LAZY);
 	if (!h) {
 		return dl;

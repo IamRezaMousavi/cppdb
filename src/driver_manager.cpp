@@ -49,7 +49,7 @@ public:
 
 private:
 	connect_function_type connect_;
-	ref_ptr<shared_object> so_;
+	std::shared_ptr<shared_object> so_;
 };
 
 backend::connection *driver_manager::connect(const std::string &str) {
