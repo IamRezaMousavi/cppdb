@@ -3,7 +3,7 @@
 
 #include <cppdb/defs.h>
 #include <cppdb/ref_ptr.hpp>
-#include <cppdb/mutex.hpp>
+#include <mutex>
 #include <map>
 #include <string>
 #include <memory>
@@ -51,7 +51,7 @@ namespace cppdb {
 		struct data;
 		std::unique_ptr<data> d;
 
-		mutex lock_;
+		std::mutex lock_;
 		typedef std::map<std::string,ref_ptr<pool> > connections_type;
 		connections_type connections_;
 	};

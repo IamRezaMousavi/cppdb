@@ -3,7 +3,7 @@
 
 #include <cppdb/defs.h>
 #include <cppdb/ref_ptr.hpp>
-#include <cppdb/mutex.hpp>
+#include <mutex>
 #include <map>
 #include <string>
 #include <vector>
@@ -71,7 +71,7 @@ namespace cppdb {
 		std::vector<std::string> search_paths_;
 		bool no_default_directory_; 
 		drivers_type drivers_;
-		mutex lock_;
+		std::mutex lock_;
 	};
 }
 
