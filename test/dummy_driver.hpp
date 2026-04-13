@@ -141,11 +141,11 @@ public:
 	virtual void begin() {}
 	virtual void commit() {}
 	virtual void rollback() {}
-	virtual statement *prepare_statement(const std::string &q) {
-		return new statement(q);
+	virtual std::shared_ptr<cppdb::backend::statement> prepare_statement(const std::string &q) {
+		return cppdb::backend::make_stmt<statement>(q);
 	}
-	virtual statement *create_statement(const std::string &q) {
-		return new statement(q);
+	virtual std::shared_ptr<cppdb::backend::statement> create_statement(const std::string &q) {
+		return cppdb::backend::make_stmt<statement>(q);
 	}
 	virtual std::string escape(const std::string &) {
 		throw cppdb::not_supported_by_backend("not supported");

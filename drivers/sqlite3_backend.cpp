@@ -355,10 +355,10 @@ public:
 	virtual void rollback() {
 		fast_exec("rollback");
 	}
-	virtual statement *prepare_statement(const std::string &q) {
-		return new statement(q, conn_);
+	virtual std::shared_ptr<backend::statement> prepare_statement(const std::string &q) {
+		return backend::make_stmt<statement>(q, conn_);
 	}
-	virtual statement *create_statement(const std::string &q) {
+	virtual std::shared_ptr<backend::statement> create_statement(const std::string &q) {
 		return prepare_statement(q);
 	}
 	virtual std::string escape(const std::string &s) {

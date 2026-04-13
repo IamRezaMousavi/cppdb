@@ -97,7 +97,7 @@ void test_driver_manager() {
 
 void test_stmt_cache() {
 	cppdb::ref_ptr<cppdb::backend::connection> c;
-	cppdb::ref_ptr<cppdb::backend::statement> s1, s2, s3;
+	std::shared_ptr<cppdb::backend::statement> s1, s2, s3;
 
 	std::cout << "[Test] Testing statement caching\n";
 

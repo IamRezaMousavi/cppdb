@@ -1190,11 +1190,11 @@ public:
 	/// Create a prepared statement \a q. May throw if preparation had failed.
 	/// Should never return null value.
 	///
-	virtual backend::statement *prepare_statement(const std::string &q) {
-		return new prep::statement(q, conn_);
+	virtual std::shared_ptr<backend::statement> prepare_statement(const std::string &q) {
+		return backend::make_stmt<prep::statement>(q, conn_);
 	}
-	virtual backend::statement *create_statement(const std::string &q) {
-		return new unprep::statement(q, conn_);
+	virtual std::shared_ptr<backend::statement> create_statement(const std::string &q) {
+		return backend::make_stmt<unprep::statement>(q, conn_);
 	}
 	///
 	/// Escape a string for inclusion in SQL query. May throw not_supported_by_backend() if not supported by backend.

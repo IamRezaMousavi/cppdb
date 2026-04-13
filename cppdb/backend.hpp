@@ -203,7 +203,7 @@ class statements_cache;
 ///
 /// \brief This class represents a statement that can be either executed or queried for result
 ///
-class CPPDB_API statement : public ref_counted {
+class CPPDB_API statement {
 public:
 	// Begin of API
 
@@ -382,6 +382,13 @@ private:
 	statements_cache *cache_;
 };
 
+template <typename T, typename... Args>
+std::shared_ptr<T> make_stmt(Args &&...args) {
+	static_assert(std::is_base_of<statement, T>::value, "T must derive from statement");
+
+	return std::shared_ptr<T>(new T(std::forward<Args>(args)...), [](statement *p) { statement::dispose(p); });
+}
+
 /// \cond INTERNAL
 class CPPDB_API statements_cache {
 	statements_cache(const statements_cache &);
@@ -393,7 +400,7 @@ public:
 	void set_size(size_t n);
 	void put(statement *p_in);
 	void clear();
-	ref_ptr<statement> fetch(const std::string &q);
+	std::shared_ptr<statement> fetch(const std::string &q);
 	~statements_cache();
 
 private:
@@ -491,10 +498,10 @@ public:
 	std::shared_ptr<pool> get_pool();
 	void set_driver(std::shared_ptr<loadable_driver> drv);
 	static void dispose(connection *c);
-	ref_ptr<statement> prepare(const std::string &q);
-	ref_ptr<statement> get_prepared_statement(const std::string &q);
-	ref_ptr<statement> get_prepared_uncached_statement(const std::string &q);
-	ref_ptr<statement> get_statement(const std::string &q);
+	std::shared_ptr<statement> prepare(const std::string &q);
+	std::shared_ptr<statement> get_prepared_statement(const std::string &q);
+	std::shared_ptr<statement> get_prepared_uncached_statement(const std::string &q);
+	std::shared_ptr<statement> get_statement(const std::string &q);
 	/// \endcond
 
 	// API
@@ -517,12 +524,12 @@ public:
 	/// Create a prepared statement \a q. May throw if preparation had failed.
 	/// Should never return null value.
 	///
-	virtual statement *prepare_statement(const std::string &q) = 0;
+	virtual std::shared_ptr<statement> prepare_statement(const std::string &q) = 0;
 	///
 	/// Create a (unprepared) statement \a q. May throw if preparation had failed.
 	/// Should never return null value.
 	///
-	virtual statement *create_statement(const std::string &q) = 0;
+	virtual std::shared_ptr<statement> create_statement(const std::string &q) = 0;
 	///
 	/// Escape a string for inclusion in SQL query. May throw not_supported_by_backend() if not supported by backend.
 	///

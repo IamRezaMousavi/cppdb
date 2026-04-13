@@ -532,7 +532,8 @@ public:
 	}
 
 private:
-	result(std::shared_ptr<backend::result> res, ref_ptr<backend::statement> stat, ref_ptr<backend::connection> conn);
+	result(std::shared_ptr<backend::result> res, std::shared_ptr<backend::statement> stat,
+		   ref_ptr<backend::connection> conn);
 
 	void check();
 
@@ -546,7 +547,7 @@ private:
 	bool fetched_;
 	int current_col_;
 	std::shared_ptr<backend::result> res_;
-	ref_ptr<backend::statement> stat_;
+	std::shared_ptr<backend::statement> stat_;
 	ref_ptr<backend::connection> conn_;
 };
 
@@ -890,12 +891,12 @@ public:
 	}
 
 private:
-	statement(ref_ptr<backend::statement> stat, ref_ptr<backend::connection> conn);
+	statement(std::shared_ptr<backend::statement> stat, ref_ptr<backend::connection> conn);
 
 	friend class session;
 
 	int placeholder_;
-	ref_ptr<backend::statement> stat_;
+	std::shared_ptr<backend::statement> stat_;
 	ref_ptr<backend::connection> conn_;
 	struct data;
 	std::unique_ptr<data> d;

@@ -25,9 +25,9 @@ private:
 };
 
 result::result() : eof_(false), fetched_(false), current_col_(0) {}
-result::result(std::shared_ptr<backend::result> res, ref_ptr<backend::statement> stat,
+result::result(std::shared_ptr<backend::result> res, std::shared_ptr<backend::statement> stat,
 			   ref_ptr<backend::connection> conn)
-	: eof_(false), fetched_(false), current_col_(0), res_(std::move(res)), stat_(stat), conn_(conn) {}
+	: eof_(false), fetched_(false), current_col_(0), res_(std::move(res)), stat_(std::move(stat)), conn_(conn) {}
 result::result(const result &other)
 	: eof_(other.eof_),
 	  fetched_(other.fetched_),
@@ -261,7 +261,7 @@ const statement &statement::operator=(const statement &other) {
 	return *this;
 }
 
-statement::statement(ref_ptr<backend::statement> stat, ref_ptr<backend::connection> conn)
+statement::statement(std::shared_ptr<backend::statement> stat, ref_ptr<backend::connection> conn)
 	: placeholder_(1), stat_(stat), conn_(conn) {}
 
 bool statement::empty() const {
@@ -487,28 +487,28 @@ bool session::is_open() {
 
 statement session::prepare(const std::string &query) {
 	throw_guard g(conn_);
-	ref_ptr<backend::statement> stat_ptr(conn_->prepare(query));
+	std::shared_ptr<backend::statement> stat_ptr(conn_->prepare(query));
 	statement stat(stat_ptr, conn_);
 	return stat;
 }
 
 statement session::create_statement(const std::string &query) {
 	throw_guard g(conn_);
-	ref_ptr<backend::statement> stat_ptr(conn_->get_statement(query));
+	std::shared_ptr<backend::statement> stat_ptr(conn_->get_statement(query));
 	statement stat(stat_ptr, conn_);
 	return stat;
 }
 
 statement session::create_prepared_statement(const std::string &query) {
 	throw_guard g(conn_);
-	ref_ptr<backend::statement> stat_ptr(conn_->get_prepared_statement(query));
+	std::shared_ptr<backend::statement> stat_ptr(conn_->get_prepared_statement(query));
 	statement stat(stat_ptr, conn_);
 	return stat;
 }
 
 statement session::create_prepared_uncached_statement(const std::string &query) {
 	throw_guard g(conn_);
-	ref_ptr<backend::statement> stat_ptr(conn_->get_prepared_uncached_statement(query));
+	std::shared_ptr<backend::statement> stat_ptr(conn_->get_prepared_uncached_statement(query));
 	statement stat(stat_ptr, conn_);
 	return stat;
 }

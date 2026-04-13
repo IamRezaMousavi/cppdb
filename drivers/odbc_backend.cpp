@@ -631,12 +631,12 @@ public:
 		}
 	}
 	virtual long long sequence_last(const std::string &sequence) {
-		ref_ptr<statement> st;
+		std::shared_ptr<statement> st;
 		if (!sequence_last_.empty()) {
-			st = new statement(sequence_last_, dbc_, wide_, false);
+			st = backend::make_stmt<statement>(sequence_last_, dbc_, wide_, false);
 			st->bind(1, sequence);
 		} else if (!last_insert_id_.empty()) {
-			st = new statement(last_insert_id_, dbc_, wide_, false);
+			st = backend::make_stmt<statement>(last_insert_id_, dbc_, wide_, false);
 		} else {
 			throw not_supported_by_backend(
 				"cppdb::odbc::sequence_last is not supported by odbc backend "
@@ -648,8 +648,7 @@ public:
 		if (!res->next() || res->cols() != 1 || !res->fetch(0, last_id)) {
 			throw cppdb_error("cppdb::odbc::sequence_last failed to fetch last value");
 		}
-		res.reset();
-		st.reset();
+
 		return last_id;
 	}
 	virtual unsigned long long affected() {
@@ -933,8 +932,8 @@ public:
 			set_autocommit(true);
 		} catch (...) {}
 	}
-	statement *real_prepare(const std::string &q, bool prepared) {
-		std::unique_ptr<statement> st(new statement(q, dbc_, wide_, prepared));
+	std::shared_ptr<statement> real_prepare(const std::string &q, bool prepared) {
+		auto st = backend::make_stmt<statement>(q, dbc_, wide_, prepared);
 		std::string seq = ci_.get("@sequence_last", "");
 		if (seq.empty()) {
 			std::string eng = engine();
@@ -953,14 +952,14 @@ public:
 				st->sequence_last_ = seq;
 		}
 
-		return st.release();
+		return st;
 	}
 
-	virtual statement *prepare_statement(const std::string &q) {
+	virtual std::shared_ptr<backend::statement> prepare_statement(const std::string &q) {
 		return real_prepare(q, true);
 	}
 
-	virtual statement *create_statement(const std::string &q) {
+	virtual std::shared_ptr<backend::statement> create_statement(const std::string &q) {
 		return real_prepare(q, false);
 	}
 

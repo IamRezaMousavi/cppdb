@@ -43,7 +43,7 @@ struct statements_cache::data {
 	typedef std::map<std::string, entry> statements_type;
 	typedef std::list<statements_type::iterator> lru_type;
 	struct entry {
-		ref_ptr<statement> stat;
+		std::shared_ptr<statement> stat;
 		lru_type::iterator lru_ptr;
 	};
 
@@ -52,7 +52,7 @@ struct statements_cache::data {
 	size_t size;
 	size_t max_size;
 
-	void insert(ref_ptr<statement> st) {
+	void insert(std::shared_ptr<statement> st) {
 		statements_type::iterator p;
 		if ((p = statements.find(st->sql_query())) != statements.end()) {
 			p->second.stat = st;
@@ -75,8 +75,8 @@ struct statements_cache::data {
 		}
 	}
 
-	ref_ptr<statement> fetch(const std::string &query) {
-		ref_ptr<statement> st;
+	std::shared_ptr<statement> fetch(const std::string &query) {
+		std::shared_ptr<statement> st;
 		statements_type::iterator p = statements.find(query);
 		if (p == statements.end())
 			return st;
@@ -105,13 +105,13 @@ void statements_cache::put(statement *p_in) {
 	if (!active()) {
 		delete p_in;
 	}
-	ref_ptr<statement> p(p_in);
+	std::shared_ptr<statement> p(p_in);
 	p->reset();
 	d->insert(p);
 }
-ref_ptr<statement> statements_cache::fetch(const std::string &q) {
+std::shared_ptr<statement> statements_cache::fetch(const std::string &q) {
 	if (!active())
-		return 0;
+		return nullptr;
 	return d->fetch(q);
 }
 void statements_cache::clear() {
@@ -135,20 +135,20 @@ struct connection::data {
 			delete *p;
 	}
 };
-ref_ptr<statement> connection::prepare(const std::string &q) {
+std::shared_ptr<statement> connection::prepare(const std::string &q) {
 	if (default_is_prepared_)
 		return get_prepared_statement(q);
 	else
 		return get_statement(q);
 }
 
-ref_ptr<statement> connection::get_statement(const std::string &q) {
-	ref_ptr<statement> st = create_statement(q);
+std::shared_ptr<statement> connection::get_statement(const std::string &q) {
+	std::shared_ptr<statement> st = create_statement(q);
 	return st;
 }
 
-ref_ptr<statement> connection::get_prepared_statement(const std::string &q) {
-	ref_ptr<statement> st;
+std::shared_ptr<statement> connection::get_prepared_statement(const std::string &q) {
+	std::shared_ptr<statement> st;
 	if (!cache_.active()) {
 		st = prepare_statement(q);
 		return st;
@@ -160,8 +160,8 @@ ref_ptr<statement> connection::get_prepared_statement(const std::string &q) {
 	return st;
 }
 
-ref_ptr<statement> connection::get_prepared_uncached_statement(const std::string &q) {
-	ref_ptr<statement> st = prepare_statement(q);
+std::shared_ptr<statement> connection::get_prepared_uncached_statement(const std::string &q) {
+	std::shared_ptr<statement> st = prepare_statement(q);
 	return st;
 }
 

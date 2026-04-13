@@ -572,11 +572,11 @@ public:
 			do_simple_exec("rollback");
 		} catch (...) {}
 	}
-	virtual statement *prepare_statement(const std::string &q) {
-		return new statement(conn_, q, blob_, ++prepared_id_);
+	virtual std::shared_ptr<backend::statement> prepare_statement(const std::string &q) {
+		return backend::make_stmt<statement>(conn_, q, blob_, ++prepared_id_);
 	}
-	virtual statement *create_statement(const std::string &q) {
-		return new statement(conn_, q, blob_, 0);
+	virtual std::shared_ptr<backend::statement> create_statement(const std::string &q) {
+		return backend::make_stmt<statement>(conn_, q, blob_, 0);
 	}
 	std::string do_escape(const char *b, size_t length) {
 		std::vector<char> buf(2 * length + 1);
