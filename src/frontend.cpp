@@ -25,8 +25,9 @@ private:
 };
 
 result::result() : eof_(false), fetched_(false), current_col_(0) {}
-result::result(ref_ptr<backend::result> res, ref_ptr<backend::statement> stat, ref_ptr<backend::connection> conn)
-	: eof_(false), fetched_(false), current_col_(0), res_(res), stat_(stat), conn_(conn) {}
+result::result(std::shared_ptr<backend::result> res, ref_ptr<backend::statement> stat,
+			   ref_ptr<backend::connection> conn)
+	: eof_(false), fetched_(false), current_col_(0), res_(std::move(res)), stat_(stat), conn_(conn) {}
 result::result(const result &other)
 	: eof_(other.eof_),
 	  fetched_(other.fetched_),
@@ -418,7 +419,7 @@ unsigned long long statement::affected() {
 
 result statement::row() {
 	throw_guard g(conn_);
-	ref_ptr<backend::result> backend_res = stat_->query();
+	auto backend_res = stat_->query();
 	result res(backend_res, stat_, conn_);
 	if (res.next()) {
 		if (res.res_->has_next() == backend::result::next_row_exists) {
@@ -431,7 +432,7 @@ result statement::row() {
 
 result statement::query() {
 	throw_guard g(conn_);
-	ref_ptr<backend::result> res(stat_->query());
+	auto res(stat_->query());
 	return result(res, stat_, conn_);
 }
 statement::operator result() {

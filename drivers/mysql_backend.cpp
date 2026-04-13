@@ -317,14 +317,14 @@ public:
 		real_query.append(query_, pos_, std::string::npos);
 	}
 
-	virtual result *query() {
+	virtual std::shared_ptr<backend::result> query() {
 		std::string real_query;
 		bind_all(real_query);
 		reset_params();
 		if (mysql_real_query(conn_, real_query.c_str(), real_query.size())) {
 			throw cppdb_myerror(mysql_error(conn_));
 		}
-		return new result(conn_);
+		return std::make_shared<result>(conn_);
 	}
 
 	virtual void exec() {
@@ -928,12 +928,12 @@ public:
 	///
 	/// Return SQL Query result, MAY throw cppdb_error if the statement is not a query
 	///
-	virtual result *query() {
+	virtual std::shared_ptr<backend::result> query() {
 		bind_all();
 		if (mysql_stmt_execute(stmt_)) {
 			throw cppdb_myerror(mysql_stmt_error(stmt_));
 		}
-		return new result(stmt_);
+		return std::make_shared<result>(stmt_);
 	}
 	///
 	/// Execute a statement, MAY throw cppdb_error if the statement returns results.

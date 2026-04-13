@@ -643,7 +643,7 @@ public:
 				"unless properties @squence_last, @last_insert_id are specified "
 				"or @engine is one of mysql, sqlite3, postgresql, mssql");
 		}
-		ref_ptr<result> res = st->query();
+		auto res = st->query();
 		long long last_id;
 		if (!res->next() || res->cols() != 1 || !res->fetch(0, last_id)) {
 			throw cppdb_error("cppdb::odbc::sequence_last failed to fetch last value");
@@ -658,7 +658,7 @@ public:
 		check_error(r);
 		return rows;
 	}
-	virtual result *query() {
+	virtual std::shared_ptr<backend::result> query() {
 		bind_all();
 		int r = real_exec();
 		check_error(r);
@@ -779,7 +779,7 @@ public:
 		if (r != SQL_NO_DATA) {
 			check_error(r);
 		}
-		return new result(rows, names, cols);
+		return std::make_shared<result>(rows, names, cols);
 	}
 
 	int real_exec() {

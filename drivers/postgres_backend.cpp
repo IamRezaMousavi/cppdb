@@ -452,11 +452,11 @@ public:
 		}
 	}
 
-	virtual result *query() {
+	virtual std::shared_ptr<backend::result> query() {
 		real_query();
 		switch (PQresultStatus(res_)) {
 		case PGRES_TUPLES_OK: {
-			result *ptr = new result(res_, conn_, blob_);
+			auto ptr = std::make_shared<result>(res_, conn_, blob_);
 			res_ = 0;
 			return ptr;
 		} break;

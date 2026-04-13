@@ -532,7 +532,7 @@ public:
 	}
 
 private:
-	result(ref_ptr<backend::result> res, ref_ptr<backend::statement> stat, ref_ptr<backend::connection> conn);
+	result(std::shared_ptr<backend::result> res, ref_ptr<backend::statement> stat, ref_ptr<backend::connection> conn);
 
 	void check();
 
@@ -545,7 +545,7 @@ private:
 	bool eof_;
 	bool fetched_;
 	int current_col_;
-	ref_ptr<backend::result> res_;
+	std::shared_ptr<backend::result> res_;
 	ref_ptr<backend::statement> stat_;
 	ref_ptr<backend::connection> conn_;
 };

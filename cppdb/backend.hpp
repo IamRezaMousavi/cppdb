@@ -38,7 +38,7 @@ namespace backend {
 /// will stay alive as long as statement that created it exits, i.e. statement would be destroyed after
 /// result.
 ///
-class CPPDB_API result : public ref_counted {
+class CPPDB_API result {
 public:
 	///
 	/// The flag that defines the information about availability of the next row in result
@@ -362,7 +362,7 @@ public:
 	///
 	/// Return SQL Query result, MAY throw cppdb_error if the statement is not a query
 	///
-	virtual result *query() = 0;
+	virtual std::shared_ptr<result> query() = 0;
 	///
 	/// Execute a statement, MAY throw cppdb_error if the statement returns results.
 	///

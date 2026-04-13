@@ -111,8 +111,8 @@ public:
 	virtual unsigned long long affected() {
 		return 0;
 	}
-	virtual result *query() {
-		return new result();
+	virtual std::shared_ptr<cppdb::backend::result> query() {
+		return std::make_shared<result>();
 	}
 	virtual void exec() {}
 	statement(const std::string &q) : q_(q) {

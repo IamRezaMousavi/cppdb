@@ -250,10 +250,10 @@ public:
 		reset_stat();
 		check_bind(sqlite3_bind_null(st_, col));
 	}
-	virtual result *query() {
+	virtual std::shared_ptr<backend::result> query() {
 		reset_stat();
 		reset_ = false;
-		return new result(st_, conn_);
+		return std::make_shared<result>(st_, conn_);
 	}
 	virtual long long sequence_last(const std::string & /*name*/) {
 		return sqlite3_last_insert_rowid(conn_);

@@ -27,13 +27,13 @@ int sizes[] = {
 void test_template(cppdb::ref_ptr<cppdb::backend::connection> sql)
 {
 	cppdb::ref_ptr<cppdb::backend::statement> stmt;
-	cppdb::ref_ptr<cppdb::backend::result> res;
+	std::shared_ptr<cppdb::backend::result> res;
 }
 */
 
 void test1(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	cppdb::ref_ptr<cppdb::backend::statement> stmt;
-	cppdb::ref_ptr<cppdb::backend::result> res;
+	std::shared_ptr<cppdb::backend::result> res;
 	try {
 		stmt = sql->prepare("drop table test");
 		stmt->exec();
@@ -110,7 +110,7 @@ void test1(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 
 void test2(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	cppdb::ref_ptr<cppdb::backend::statement> stmt;
-	cppdb::ref_ptr<cppdb::backend::result> res;
+	std::shared_ptr<cppdb::backend::result> res;
 
 	try {
 		stmt = sql->prepare("drop table test");
@@ -151,7 +151,7 @@ void test2(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 
 void test3(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	cppdb::ref_ptr<cppdb::backend::statement> stmt;
-	cppdb::ref_ptr<cppdb::backend::result> res;
+	std::shared_ptr<cppdb::backend::result> res;
 
 	std::cout << "[TEST3] Testing data types\n";
 
@@ -298,7 +298,7 @@ void test3(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 
 void test4(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	cppdb::ref_ptr<cppdb::backend::statement> stmt;
-	cppdb::ref_ptr<cppdb::backend::result> res;
+	std::shared_ptr<cppdb::backend::result> res;
 
 	std::cout << "[Test4] Tesing transactions\n";
 	stmt = sql->prepare("DELETE FROM test where 1<>0");
@@ -337,7 +337,7 @@ void test4(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 
 void test5(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	cppdb::ref_ptr<cppdb::backend::statement> stmt;
-	cppdb::ref_ptr<cppdb::backend::result> res;
+	std::shared_ptr<cppdb::backend::result> res;
 
 	std::cout << "[Test5] Tesing variable length data handing: text\n";
 
@@ -381,7 +381,7 @@ void test5(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 
 void test6(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	cppdb::ref_ptr<cppdb::backend::statement> stmt;
-	cppdb::ref_ptr<cppdb::backend::result> res;
+	std::shared_ptr<cppdb::backend::result> res;
 
 	if (test_blob) {
 		std::cout << "[Test6] Tesing variable length data handing: blob\n";
@@ -434,7 +434,7 @@ void test6(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 
 void test7(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	cppdb::ref_ptr<cppdb::backend::statement> stmt;
-	cppdb::ref_ptr<cppdb::backend::result> res;
+	std::shared_ptr<cppdb::backend::result> res;
 
 	std::cout << "[TEST7] Integer Range Checks\n";
 
@@ -575,7 +575,7 @@ void test7(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 
 void test8(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	cppdb::ref_ptr<cppdb::backend::statement> stmt;
-	cppdb::ref_ptr<cppdb::backend::result> res;
+	std::shared_ptr<cppdb::backend::result> res;
 
 	std::cout << "[Test8] Testing conversions on fetch\n";
 
@@ -640,7 +640,7 @@ void test8(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 
 void test9(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	cppdb::ref_ptr<cppdb::backend::statement> stmt;
-	cppdb::ref_ptr<cppdb::backend::result> res;
+	std::shared_ptr<cppdb::backend::result> res;
 	std::cout << "[Test9] Testing conversions on bind\n";
 
 	{
@@ -734,7 +734,7 @@ void run_test(const std::string &name, void (*func)(cppdb::ref_ptr<cppdb::backen
 void test(std::string conn_str) {
 	cppdb::ref_ptr<cppdb::backend::connection> sql(cppdb::driver_manager::instance().connect(conn_str));
 	cppdb::ref_ptr<cppdb::backend::statement> stmt;
-	cppdb::ref_ptr<cppdb::backend::result> res;
+	std::shared_ptr<cppdb::backend::result> res;
 	wide_api = (sql->driver() == "odbc" && conn_str.find("utf=wide") != std::string::npos);
 
 	std::cout << "=== CppDB Backend Test Report ===\n";
