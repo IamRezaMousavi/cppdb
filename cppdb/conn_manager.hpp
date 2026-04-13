@@ -2,7 +2,6 @@
 #define CPPDB_CONN_MANAGER_HPP
 
 #include <cppdb/defs.h>
-#include <cppdb/ref_ptr.hpp>
 
 #include <map>
 #include <memory>
@@ -41,11 +40,11 @@ public:
 	///
 	/// Create a new connection using connection string \a cs
 	///
-	ref_ptr<backend::connection> open(const std::string &cs);
+	std::shared_ptr<backend::connection> open(const std::string &cs);
 	///
 	/// Create a new connection using parsed connection string \a ci
 	///
-	ref_ptr<backend::connection> open(const connection_info &ci);
+	std::shared_ptr<backend::connection> open(const connection_info &ci);
 	///
 	/// Collect all connections that were not used for long time and close them.
 	///

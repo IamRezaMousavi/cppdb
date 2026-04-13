@@ -3,7 +3,6 @@
 
 #include <cppdb/defs.h>
 #include <cppdb/errors.hpp>
-#include <cppdb/ref_ptr.hpp>
 
 // Borland errors about unknown pool-type without this include.
 #ifdef __BORLANDC__
@@ -533,7 +532,7 @@ public:
 
 private:
 	result(std::shared_ptr<backend::result> res, std::shared_ptr<backend::statement> stat,
-		   ref_ptr<backend::connection> conn);
+		   std::shared_ptr<backend::connection> conn);
 
 	void check();
 
@@ -548,7 +547,7 @@ private:
 	int current_col_;
 	std::shared_ptr<backend::result> res_;
 	std::shared_ptr<backend::statement> stat_;
-	ref_ptr<backend::connection> conn_;
+	std::shared_ptr<backend::connection> conn_;
 };
 
 ///
@@ -891,13 +890,13 @@ public:
 	}
 
 private:
-	statement(std::shared_ptr<backend::statement> stat, ref_ptr<backend::connection> conn);
+	statement(std::shared_ptr<backend::statement> stat, std::shared_ptr<backend::connection> conn);
 
 	friend class session;
 
 	int placeholder_;
 	std::shared_ptr<backend::statement> stat_;
-	ref_ptr<backend::connection> conn_;
+	std::shared_ptr<backend::connection> conn_;
 	struct data;
 	std::unique_ptr<data> d;
 };
@@ -1025,11 +1024,11 @@ public:
 	/// function like object func, such that func(*this) is valid expression
 	///
 	///
-	session(ref_ptr<backend::connection> conn, const once_functor &f);
+	session(std::shared_ptr<backend::connection> conn, const once_functor &f);
 	///
 	/// Create a session using a pointer to backend::connection.
 	///
-	session(ref_ptr<backend::connection> conn);
+	session(std::shared_ptr<backend::connection> conn);
 
 	///
 	/// Open a session using a connection_info object - parsed connection string \a ci.
@@ -1209,7 +1208,7 @@ public:
 private:
 	struct data;
 	std::unique_ptr<data> d;
-	ref_ptr<backend::connection> conn_;
+	std::shared_ptr<backend::connection> conn_;
 };
 
 ///

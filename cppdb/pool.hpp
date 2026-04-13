@@ -2,7 +2,6 @@
 #define CPPDB_POOL_HPP
 
 #include <cppdb/defs.h>
-#include <cppdb/ref_ptr.hpp>
 #include <cppdb/utils.hpp>
 
 #include <list>
@@ -39,7 +38,7 @@ public:
 	static std::shared_ptr<pool> create(const connection_info &ci);
 
 	///
-	/// Shortcut of cppdb::ref_ptr<cppdb::pool> as cppdb::pool::pointer.
+	/// Shortcut of std::shared_ptr<cppdb::pool> as cppdb::pool::pointer.
 	///
 	/// The pointer that is used to handle pool object
 	///
@@ -50,7 +49,7 @@ public:
 	///
 	/// Get a open a connection, it may be fetched either from pool or new one may be created
 	///
-	ref_ptr<backend::connection> open();
+	std::shared_ptr<backend::connection> open();
 	///
 	/// Collect connections that were not used for a long time (close them)
 	///
@@ -65,14 +64,14 @@ public:
 	void put(backend::connection *c_in);
 	/// \endcond
 private:
-	ref_ptr<backend::connection> get();
+	std::shared_ptr<backend::connection> get();
 
 	struct data;
 	std::unique_ptr<data> d;
 
 	struct entry {
 		entry() : last_used(0) {}
-		ref_ptr<backend::connection> conn;
+		std::shared_ptr<backend::connection> conn;
 		std::time_t last_used;
 	};
 

@@ -52,12 +52,12 @@ private:
 	std::shared_ptr<shared_object> so_;
 };
 
-backend::connection *driver_manager::connect(const std::string &str) {
+std::shared_ptr<backend::connection> driver_manager::connect(const std::string &str) {
 	connection_info conn(str);
 	return connect(conn);
 }
 
-backend::connection *driver_manager::connect(const connection_info &conn) {
+std::shared_ptr<backend::connection> driver_manager::connect(const connection_info &conn) {
 	std::shared_ptr<backend::driver> drv_ptr;
 	{ // get driver
 		std::lock_guard<std::mutex> lock(lock_);
@@ -69,7 +69,7 @@ backend::connection *driver_manager::connect(const connection_info &conn) {
 			drivers_[conn.driver] = drv_ptr;
 		}
 	}
-	return drv_ptr->connect(conn);
+	return backend::make_conn<backend::connection>(drv_ptr->connect(conn));
 }
 void driver_manager::collect_unused() {
 	std::list<std::shared_ptr<backend::driver> > garbage;

@@ -28,11 +28,11 @@ pool::pool(const connection_info &ci) : limit_(0), life_time_(0), ci_(ci), size_
 
 pool::~pool() {}
 
-ref_ptr<backend::connection> pool::open() {
+std::shared_ptr<backend::connection> pool::open() {
 	if (limit_ == 0)
 		return driver_manager::instance().connect(ci_);
 
-	ref_ptr<backend::connection> p = get();
+	std::shared_ptr<backend::connection> p = get();
 
 	if (!p) {
 		p = driver_manager::instance().connect(ci_);
@@ -42,10 +42,10 @@ ref_ptr<backend::connection> pool::open() {
 }
 
 // this is thread safe member function
-ref_ptr<backend::connection> pool::get() {
+std::shared_ptr<backend::connection> pool::get() {
 	if (limit_ == 0)
 		return 0;
-	ref_ptr<backend::connection> c;
+	std::shared_ptr<backend::connection> c;
 	pool_type garbage;
 	std::time_t now = time(0);
 	{
@@ -74,7 +74,7 @@ ref_ptr<backend::connection> pool::get() {
 
 // this is thread safe member function
 void pool::put(backend::connection *c_in) {
-	std::unique_ptr<backend::connection> c(c_in);
+	std::shared_ptr<backend::connection> c = backend::make_conn<backend::connection>(c_in);
 	if (limit_ == 0)
 		return;
 	pool_type garbage;
@@ -85,7 +85,7 @@ void pool::put(backend::connection *c_in) {
 		if (c.get()) {
 			pool_.push_back(entry());
 			pool_.back().last_used = now;
-			pool_.back().conn = c.release();
+			pool_.back().conn = c;
 			size_++;
 		}
 

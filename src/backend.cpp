@@ -105,7 +105,7 @@ void statements_cache::put(statement *p_in) {
 	if (!active()) {
 		delete p_in;
 	}
-	std::shared_ptr<statement> p(p_in);
+	std::shared_ptr<statement> p = make_stmt<statement>(p_in);
 	p->reset();
 	d->insert(p);
 }

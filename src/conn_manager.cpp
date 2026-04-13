@@ -26,7 +26,7 @@ struct init {
 } initializer;
 } // namespace
 
-ref_ptr<backend::connection> connections_manager::open(const std::string &cs) {
+std::shared_ptr<backend::connection> connections_manager::open(const std::string &cs) {
 	std::shared_ptr<pool> p;
 	/// seems we may be using pool
 	if (cs.find("@pool_size") != std::string::npos) {
@@ -43,7 +43,7 @@ ref_ptr<backend::connection> connections_manager::open(const std::string &cs) {
 		return open(ci);
 	}
 }
-ref_ptr<backend::connection> connections_manager::open(const connection_info &ci) {
+std::shared_ptr<backend::connection> connections_manager::open(const connection_info &ci) {
 	if (ci.get("@pool_size", 0) == 0) {
 		return driver_manager::instance().connect(ci);
 	}

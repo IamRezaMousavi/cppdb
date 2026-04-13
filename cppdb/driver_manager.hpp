@@ -51,11 +51,11 @@ public:
 	///
 	/// Create a new connection object using parsed connection string \a ci
 	///
-	backend::connection *connect(const connection_info &ci);
+	std::shared_ptr<backend::connection> connect(const connection_info &ci);
 	///
 	/// Create a new connection object using connection string \a connectoin_string
 	///
-	backend::connection *connect(const std::string &connectoin_string);
+	std::shared_ptr<backend::connection> connect(const std::string &connectoin_string);
 
 private:
 	driver_manager(const driver_manager &);

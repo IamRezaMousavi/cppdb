@@ -10,9 +10,9 @@ struct result::data {};
 
 class throw_guard {
 public:
-	throw_guard(const ref_ptr<backend::connection> &conn) : conn_(conn.get()) {}
+	throw_guard(const std::shared_ptr<backend::connection> &conn) : conn_(conn.get()) {}
 	void done() {
-		conn_ = 0;
+		conn_ = nullptr;
 	}
 	~throw_guard() {
 		if (conn_ && std::uncaught_exceptions()) {
@@ -26,8 +26,13 @@ private:
 
 result::result() : eof_(false), fetched_(false), current_col_(0) {}
 result::result(std::shared_ptr<backend::result> res, std::shared_ptr<backend::statement> stat,
-			   ref_ptr<backend::connection> conn)
-	: eof_(false), fetched_(false), current_col_(0), res_(std::move(res)), stat_(std::move(stat)), conn_(conn) {}
+			   std::shared_ptr<backend::connection> conn)
+	: eof_(false),
+	  fetched_(false),
+	  current_col_(0),
+	  res_(std::move(res)),
+	  stat_(std::move(stat)),
+	  conn_(std::move(conn)) {}
 result::result(const result &other)
 	: eof_(other.eof_),
 	  fetched_(other.fetched_),
@@ -261,7 +266,7 @@ const statement &statement::operator=(const statement &other) {
 	return *this;
 }
 
-statement::statement(std::shared_ptr<backend::statement> stat, ref_ptr<backend::connection> conn)
+statement::statement(std::shared_ptr<backend::statement> stat, std::shared_ptr<backend::connection> conn)
 	: placeholder_(1), stat_(stat), conn_(conn) {}
 
 bool statement::empty() const {
@@ -451,8 +456,8 @@ const session &session::operator=(const session &other) {
 	conn_ = other.conn_;
 	return *this;
 }
-session::session(ref_ptr<backend::connection> conn) : conn_(conn) {}
-session::session(ref_ptr<backend::connection> conn, const once_functor &f) : conn_(conn) {
+session::session(std::shared_ptr<backend::connection> conn) : conn_(conn) {}
+session::session(std::shared_ptr<backend::connection> conn, const once_functor &f) : conn_(conn) {
 	once(f);
 }
 session::~session() {}
@@ -482,7 +487,7 @@ void session::close() {
 }
 
 bool session::is_open() {
-	return conn_;
+	return conn_ == nullptr;
 }
 
 statement session::prepare(const std::string &query) {

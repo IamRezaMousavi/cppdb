@@ -24,14 +24,14 @@ int sizes[] = {
 };
 
 /*
-void test_template(cppdb::ref_ptr<cppdb::backend::connection> sql)
+void test_template(std::shared_ptr<cppdb::backend::connection> sql)
 {
 	std::shared_ptr<cppdb::backend::statement> stmt;
 	std::shared_ptr<cppdb::backend::result> res;
 }
 */
 
-void test1(cppdb::ref_ptr<cppdb::backend::connection> sql) {
+void test1(std::shared_ptr<cppdb::backend::connection> sql) {
 	std::shared_ptr<cppdb::backend::statement> stmt;
 	std::shared_ptr<cppdb::backend::result> res;
 	try {
@@ -109,7 +109,7 @@ void test1(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	}
 }
 
-void test2(cppdb::ref_ptr<cppdb::backend::connection> sql) {
+void test2(std::shared_ptr<cppdb::backend::connection> sql) {
 	std::shared_ptr<cppdb::backend::statement> stmt;
 	std::shared_ptr<cppdb::backend::result> res;
 
@@ -150,7 +150,7 @@ void test2(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	}
 }
 
-void test3(cppdb::ref_ptr<cppdb::backend::connection> sql) {
+void test3(std::shared_ptr<cppdb::backend::connection> sql) {
 	std::shared_ptr<cppdb::backend::statement> stmt;
 	std::shared_ptr<cppdb::backend::result> res;
 
@@ -297,7 +297,7 @@ void test3(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	TEST(stmt->affected() == 2);
 }
 
-void test4(cppdb::ref_ptr<cppdb::backend::connection> sql) {
+void test4(std::shared_ptr<cppdb::backend::connection> sql) {
 	std::shared_ptr<cppdb::backend::statement> stmt;
 	std::shared_ptr<cppdb::backend::result> res;
 
@@ -336,7 +336,7 @@ void test4(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	stmt->exec();
 }
 
-void test5(cppdb::ref_ptr<cppdb::backend::connection> sql) {
+void test5(std::shared_ptr<cppdb::backend::connection> sql) {
 	std::shared_ptr<cppdb::backend::statement> stmt;
 	std::shared_ptr<cppdb::backend::result> res;
 
@@ -380,7 +380,7 @@ void test5(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	stmt->exec();
 }
 
-void test6(cppdb::ref_ptr<cppdb::backend::connection> sql) {
+void test6(std::shared_ptr<cppdb::backend::connection> sql) {
 	std::shared_ptr<cppdb::backend::statement> stmt;
 	std::shared_ptr<cppdb::backend::result> res;
 
@@ -433,7 +433,7 @@ void test6(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	stmt->exec();
 }
 
-void test7(cppdb::ref_ptr<cppdb::backend::connection> sql) {
+void test7(std::shared_ptr<cppdb::backend::connection> sql) {
 	std::shared_ptr<cppdb::backend::statement> stmt;
 	std::shared_ptr<cppdb::backend::result> res;
 
@@ -574,7 +574,7 @@ void test7(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	stmt->exec();
 }
 
-void test8(cppdb::ref_ptr<cppdb::backend::connection> sql) {
+void test8(std::shared_ptr<cppdb::backend::connection> sql) {
 	std::shared_ptr<cppdb::backend::statement> stmt;
 	std::shared_ptr<cppdb::backend::result> res;
 
@@ -639,7 +639,7 @@ void test8(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	}
 }
 
-void test9(cppdb::ref_ptr<cppdb::backend::connection> sql) {
+void test9(std::shared_ptr<cppdb::backend::connection> sql) {
 	std::shared_ptr<cppdb::backend::statement> stmt;
 	std::shared_ptr<cppdb::backend::result> res;
 	std::cout << "[Test9] Testing conversions on bind\n";
@@ -717,8 +717,8 @@ void test9(cppdb::ref_ptr<cppdb::backend::connection> sql) {
 	}
 }
 
-void run_test(const std::string &name, void (*func)(cppdb::ref_ptr<cppdb::backend::connection>),
-			  cppdb::ref_ptr<cppdb::backend::connection> sql) {
+void run_test(const std::string &name, void (*func)(std::shared_ptr<cppdb::backend::connection>),
+			  std::shared_ptr<cppdb::backend::connection> sql) {
 	std::cout << "[" << name << "] START\n";
 
 	try {
@@ -733,7 +733,7 @@ void run_test(const std::string &name, void (*func)(cppdb::ref_ptr<cppdb::backen
 }
 
 void test(std::string conn_str) {
-	cppdb::ref_ptr<cppdb::backend::connection> sql(cppdb::driver_manager::instance().connect(conn_str));
+	std::shared_ptr<cppdb::backend::connection> sql(cppdb::driver_manager::instance().connect(conn_str));
 	std::shared_ptr<cppdb::backend::statement> stmt;
 	std::shared_ptr<cppdb::backend::result> res;
 	wide_api = (sql->driver() == "odbc" && conn_str.find("utf=wide") != std::string::npos);

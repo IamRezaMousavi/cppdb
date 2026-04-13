@@ -18,7 +18,7 @@ void sleep(int x) {
 #endif
 
 void test_driver_manager() {
-	cppdb::ref_ptr<cppdb::backend::connection> c1, c2, c3, c4;
+	std::shared_ptr<cppdb::backend::connection> c1, c2, c3, c4;
 	cppdb::driver_manager &dm = cppdb::driver_manager::instance();
 
 	std::cout << "[Test] Testing drivers collection\n";
@@ -38,9 +38,9 @@ void test_driver_manager() {
 	dm.collect_unused();
 	TEST(dummy::connections == 2);
 	TEST(dummy::drivers == 1);
-	c1 = 0;
+	c1 = nullptr;
 	TEST(dummy::connections == 1);
-	c2 = 0;
+	c2 = nullptr;
 	TEST(dummy::connections == 0);
 	TEST(dummy::drivers == 1);
 	dm.collect_unused();
@@ -70,8 +70,6 @@ void test_driver_manager() {
 	dm.collect_unused();
 	TEST(dummy::connections == 2);
 	TEST(dummy::drivers == 1);
-	TEST(dummy::connections == 2);
-	TEST(dummy::drivers == 1);
 	cm.gc();
 	dm.collect_unused();
 	TEST(dummy::connections == 2);
@@ -96,7 +94,7 @@ void test_driver_manager() {
 }
 
 void test_stmt_cache() {
-	cppdb::ref_ptr<cppdb::backend::connection> c;
+	std::shared_ptr<cppdb::backend::connection> c;
 	std::shared_ptr<cppdb::backend::statement> s1, s2, s3;
 
 	std::cout << "[Test] Testing statement caching\n";
