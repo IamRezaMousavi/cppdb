@@ -27,7 +27,7 @@ struct init {
 } // namespace
 
 ref_ptr<backend::connection> connections_manager::open(const std::string &cs) {
-	ref_ptr<pool> p;
+	std::shared_ptr<pool> p;
 	/// seems we may be using pool
 	if (cs.find("@pool_size") != std::string::npos) {
 		std::lock_guard<std::mutex> lock(lock_);
@@ -47,10 +47,10 @@ ref_ptr<backend::connection> connections_manager::open(const connection_info &ci
 	if (ci.get("@pool_size", 0) == 0) {
 		return driver_manager::instance().connect(ci);
 	}
-	ref_ptr<pool> p;
+	std::shared_ptr<pool> p;
 	{
 		std::lock_guard<std::mutex> lock(lock_);
-		ref_ptr<pool> &ref_p = connections_[ci.connection_string];
+		std::shared_ptr<pool> &ref_p = connections_[ci.connection_string];
 		if (!ref_p) {
 			ref_p = pool::create(ci);
 		}
@@ -59,7 +59,7 @@ ref_ptr<backend::connection> connections_manager::open(const connection_info &ci
 	return p->open();
 }
 void connections_manager::gc() {
-	std::vector<ref_ptr<pool> > pools_;
+	std::vector<std::shared_ptr<pool> > pools_;
 	pools_.reserve(100);
 	{
 		std::lock_guard<std::mutex> lock(lock_);
@@ -74,7 +74,7 @@ void connections_manager::gc() {
 	{
 		std::lock_guard<std::mutex> lock(lock_);
 		for (connections_type::iterator p = connections_.begin(); p != connections_.end();) {
-			if (p->second->use_count() == 1) {
+			if (p->second.unique()) {
 				pools_.push_back(p->second);
 				connections_type::iterator tmp = p;
 				++p;

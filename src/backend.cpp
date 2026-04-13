@@ -226,10 +226,10 @@ void connection::connection_specific_reset(const std::type_info &type, connectio
 	}
 }
 
-ref_ptr<pool> connection::get_pool() {
+std::shared_ptr<pool> connection::get_pool() {
 	return pool_;
 }
-void connection::set_pool(ref_ptr<pool> p) {
+void connection::set_pool(std::shared_ptr<pool> p) {
 	pool_ = p;
 }
 void connection::set_driver(std::shared_ptr<loadable_driver> p) {
@@ -250,8 +250,8 @@ bool connection::recyclable() {
 void connection::dispose(connection *c) {
 	if (!c)
 		return;
-	ref_ptr<pool> p = c->pool_;
-	c->pool_ = 0;
+	std::shared_ptr<pool> p = c->pool_;
+	c->pool_ = nullptr;
 	if (p && c->recyclable())
 		p->put(c);
 	else {

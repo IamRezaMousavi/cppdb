@@ -11,13 +11,13 @@ namespace cppdb {
 
 struct pool::data {};
 
-ref_ptr<pool> pool::create(const connection_info &ci) {
-	ref_ptr<pool> p = new pool(ci);
+std::shared_ptr<pool> pool::create(const connection_info &ci) {
+	auto p = std::make_shared<pool>(ci);
 	return p;
 }
-ref_ptr<pool> pool::create(const std::string &cs) {
+std::shared_ptr<pool> pool::create(const std::string &cs) {
 	connection_info ci(cs);
-	ref_ptr<pool> p = new pool(ci);
+	auto p = std::make_shared<pool>(ci);
 	return p;
 }
 
@@ -37,7 +37,7 @@ ref_ptr<backend::connection> pool::open() {
 	if (!p) {
 		p = driver_manager::instance().connect(ci_);
 	}
-	p->set_pool(this);
+	p->set_pool(shared_from_this());
 	return p;
 }
 
@@ -112,7 +112,7 @@ void pool::put(backend::connection *c_in) {
 }
 
 void pool::gc() {
-	put(0);
+	put(nullptr);
 }
 
 void pool::clear() {

@@ -487,8 +487,8 @@ public:
 	connection(const connection_info &info);
 	virtual ~connection();
 	/// \cond INTERNAL
-	void set_pool(ref_ptr<pool> p);
-	ref_ptr<pool> get_pool();
+	void set_pool(std::shared_ptr<pool> p);
+	std::shared_ptr<pool> get_pool();
 	void set_driver(std::shared_ptr<loadable_driver> drv);
 	static void dispose(connection *c);
 	ref_ptr<statement> prepare(const std::string &q);
@@ -599,7 +599,7 @@ private:
 	std::unique_ptr<data> d;
 	statements_cache cache_;
 	std::shared_ptr<loadable_driver> driver_;
-	ref_ptr<pool> pool_;
+	std::shared_ptr<pool> pool_;
 	unsigned default_is_prepared_ : 1;
 	unsigned once_called_ : 1;
 	unsigned recyclable_ : 1;

@@ -56,7 +56,7 @@ private:
 	std::unique_ptr<data> d;
 
 	std::mutex lock_;
-	typedef std::map<std::string, ref_ptr<pool> > connections_type;
+	typedef std::map<std::string, std::shared_ptr<pool> > connections_type;
 	connections_type connections_;
 };
 

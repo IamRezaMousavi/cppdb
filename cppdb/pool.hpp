@@ -26,24 +26,24 @@ class connection;
 ///
 /// All this class member functions are thread safe to use from several threads for the same object
 ///
-class CPPDB_API pool : public ref_counted {
+class CPPDB_API pool : public std::enable_shared_from_this<pool> {
 	pool();
 	pool(const pool &);
 	void operator=(const pool &);
-	pool(const connection_info &ci);
 
 public:
+	pool(const connection_info &ci);
 	/// Create new pool for \a connection_string
-	static ref_ptr<pool> create(const std::string &connection_string);
+	static std::shared_ptr<pool> create(const std::string &connection_string);
 	/// Create new pool for a parsed connection string \a ci
-	static ref_ptr<pool> create(const connection_info &ci);
+	static std::shared_ptr<pool> create(const connection_info &ci);
 
 	///
 	/// Shortcut of cppdb::ref_ptr<cppdb::pool> as cppdb::pool::pointer.
 	///
 	/// The pointer that is used to handle pool object
 	///
-	typedef ref_ptr<pool> pointer;
+	typedef std::shared_ptr<pool> pointer;
 
 	~pool();
 
