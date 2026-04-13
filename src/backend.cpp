@@ -4,6 +4,7 @@
 #include <cppdb/pool.hpp>
 #include <cppdb/utils.hpp>
 
+#include <algorithm>
 #include <list>
 #include <map>
 
@@ -128,12 +129,9 @@ bool statements_cache::active() {
 //////////////
 
 struct connection::data {
-	typedef std::list<connection_specific_data *> conn_specific_type;
+	typedef std::list<std::shared_ptr<connection_specific_data>> conn_specific_type;
 	conn_specific_type conn_specific;
-	~data() {
-		for (conn_specific_type::iterator p = conn_specific.begin(); p != conn_specific.end(); ++p)
-			delete *p;
-	}
+	~data() {}
 };
 std::shared_ptr<statement> connection::prepare(const std::string &q) {
 	if (default_is_prepared_)
@@ -187,42 +185,44 @@ bool connection::once_called() const {
 void connection::once_called(bool v) {
 	once_called_ = v;
 }
-connection_specific_data *connection::connection_specific_get(const std::type_info &type) const {
-	for (data::conn_specific_type::const_iterator p = d->conn_specific.begin(); p != d->conn_specific.end(); ++p) {
-		if (typeid(**p) == type)
-			return *p;
+std::shared_ptr<connection_specific_data> connection::connection_specific_get(const std::type_info &type) const {
+	auto it = std::find_if(
+		d->conn_specific.begin(), d->conn_specific.end(),
+		[&](const std::shared_ptr<connection_specific_data> &p) { return p != nullptr && typeid(*p) == type; });
+	if (it != d->conn_specific.end()) {
+		return *it;
 	}
-	return 0;
+	return nullptr;
 }
-connection_specific_data *connection::connection_specific_release(const std::type_info &type) {
-	for (data::conn_specific_type::iterator p = d->conn_specific.begin(); p != d->conn_specific.end(); ++p) {
-		if (typeid(**p) == type) {
-			connection_specific_data *ptr = *p;
-			d->conn_specific.erase(p);
-			return ptr;
-		}
+std::shared_ptr<connection_specific_data> connection::connection_specific_release(const std::type_info &type) {
+	auto it = std::find_if(
+		d->conn_specific.begin(), d->conn_specific.end(),
+		[&](const std::shared_ptr<connection_specific_data> &p) { return p != nullptr && typeid(*p) == type; });
+	if (it != d->conn_specific.end()) {
+		auto ptr = *it;
+		d->conn_specific.erase(it);
+		return ptr;
 	}
-	return 0;
+	return nullptr;
 }
-void connection::connection_specific_reset(const std::type_info &type, connection_specific_data *ptr) {
-	std::unique_ptr<connection_specific_data> tmp(ptr);
+void connection::connection_specific_reset(const std::type_info &type, std::shared_ptr<connection_specific_data> ptr) {
 	if (ptr && typeid(*ptr) != type) {
 		throw cppdb_error(std::string("cppdb::connection_specific::Inconsistent pointer type") + typeid(*ptr).name()
 						  + " and std::type_info reference:" + type.name());
 	}
-	for (data::conn_specific_type::iterator p = d->conn_specific.begin(); p != d->conn_specific.end(); ++p) {
-		if (typeid(**p) == type) {
-			delete *p;
-			if (ptr)
-				*p = tmp.release();
-			else
-				d->conn_specific.erase(p);
-			return;
-		}
+	auto it = std::find_if(
+		d->conn_specific.begin(), d->conn_specific.end(),
+		[&](const std::shared_ptr<connection_specific_data> &p) { return p != nullptr && typeid(*p) == type; });
+	if (it != d->conn_specific.end()) {
+		it->reset();
+		if (ptr)
+			*it = ptr;
+		else
+			d->conn_specific.erase(it);
+		return;
 	}
 	if (ptr) {
-		d->conn_specific.push_back(0);
-		d->conn_specific.back() = tmp.release();
+		d->conn_specific.push_back(ptr);
 	}
 }
 

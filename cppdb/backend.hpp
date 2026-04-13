@@ -580,16 +580,16 @@ public:
 	///
 	/// The ownership is not changed
 	///
-	connection_specific_data *connection_specific_get(const std::type_info &type) const;
+	std::shared_ptr<connection_specific_data> connection_specific_get(const std::type_info &type) const;
 	///
 	/// Release ownership connection specific data pointer of the type \a type
 	///
-	connection_specific_data *connection_specific_release(const std::type_info &type);
+	std::shared_ptr<connection_specific_data> connection_specific_release(const std::type_info &type);
 	///
 	/// Remove old connection specific data and set new one for a given
 	/// type \a type , the ownership on \a p is transferred to connection.
 	///
-	void connection_specific_reset(const std::type_info &type, connection_specific_data *p = 0);
+	void connection_specific_reset(const std::type_info &type, std::shared_ptr<connection_specific_data> p = nullptr);
 
 	///
 	/// Check if this back-end can be recycled for reuse in a pool.

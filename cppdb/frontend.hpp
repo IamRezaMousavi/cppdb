@@ -1173,35 +1173,35 @@ public:
 	///
 	/// Get connection specific object by its type \a t, returns 0 if not installed yet
 	///
-	connection_specific_data *get_specific(const std::type_info &t);
+	std::shared_ptr<connection_specific_data> get_specific(const std::type_info &t);
 	///
 	/// Transfers ownership on the connection specific object of type \a t, returns 0 if not installed yet
 	///
-	connection_specific_data *release_specific(const std::type_info &t);
+	std::shared_ptr<connection_specific_data> release_specific(const std::type_info &t);
 	///
 	/// Deletes connection specific object of type \a t, and sets a new one \a p (if not NULL)
 	///
-	void reset_specific(const std::type_info &t, connection_specific_data *p = 0);
+	void reset_specific(const std::type_info &t, std::shared_ptr<connection_specific_data> p = 0);
 
 	///
 	/// Get connection specific object by its type \a T, returns 0 if not installed yet
 	///
 	template <typename T>
-	T *get_specific() {
-		return static_cast<T *>(get_specific(typeid(T)));
+	std::shared_ptr<T> get_specific() {
+		return std::static_pointer_cast<T>(get_specific(typeid(T)));
 	}
 	///
 	/// Transfers ownership on the connection specific object of type \a T, returns 0 if not installed yet
 	///
 	template <typename T>
-	T *release_specific() {
-		return static_cast<T *>(release_specific(typeid(T)));
+	std::shared_ptr<T> release_specific() {
+		return std::static_pointer_cast<T>(release_specific(typeid(T)));
 	}
 	///
 	/// Deletes connection specific object of type \a T, and sets a new one \a p (if not NULL)
 	///
 	template <typename T>
-	void reset_specific(T *p = 0) {
+	void reset_specific(std::shared_ptr<T> p = nullptr) {
 		reset_specific(typeid(T), p);
 	}
 

@@ -145,11 +145,11 @@ int main(int argc, char **argv) {
 		TEST(stat.empty());
 		TEST(cppdb::statement().empty());
 
-		sql.reset_specific(new my_specific_a(10));
+		sql.reset_specific(std::make_shared<my_specific_a>(10));
 		TEST(sql.get_specific<my_specific_b>() == 0);
 		TEST(sql.get_specific<my_specific_a>() != 0);
 		TEST(sql.get_specific<my_specific_a>()->val == 10);
-		sql.reset_specific(new my_specific_b(20));
+		sql.reset_specific(std::make_shared<my_specific_b>(20));
 		TEST(sql.get_specific<my_specific_b>() != 0);
 		TEST(sql.get_specific<my_specific_a>() != 0);
 		TEST(sql.get_specific<my_specific_a>()->val == 10);
@@ -157,9 +157,9 @@ int main(int argc, char **argv) {
 		sql.reset_specific<my_specific_b>();
 		TEST(sql.get_specific<my_specific_b>() == 0);
 		TEST(sql.get_specific<my_specific_a>() != 0);
-		my_specific_a *p = sql.release_specific<my_specific_a>();
+		auto p = sql.release_specific<my_specific_a>();
 		TEST(p != 0);
-		delete p;
+		p.reset();
 		TEST(sql.get_specific<my_specific_a>() == 0);
 		TEST(sql.release_specific<my_specific_a>() == 0);
 		std::cout << "[SPECIFIC] OK\n";

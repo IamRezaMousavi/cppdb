@@ -10,9 +10,9 @@ struct result::data {};
 
 class throw_guard {
 public:
-	throw_guard(const std::shared_ptr<backend::connection> &conn) : conn_(conn.get()) {}
+	throw_guard(const std::shared_ptr<backend::connection> &conn) : conn_(std::move(conn)) {}
 	void done() {
-		conn_ = nullptr;
+		conn_.reset();
 	}
 	~throw_guard() {
 		if (conn_ && std::uncaught_exceptions()) {
@@ -21,7 +21,7 @@ public:
 	}
 
 private:
-	backend::connection *conn_;
+	std::shared_ptr<backend::connection> conn_;
 };
 
 result::result() : eof_(false), fetched_(false), current_col_(0) {}
@@ -604,13 +604,13 @@ void session::recyclable(bool v) {
 	conn_->recyclable(v);
 }
 
-connection_specific_data *session::get_specific(const std::type_info &t) {
+std::shared_ptr<connection_specific_data> session::get_specific(const std::type_info &t) {
 	return conn_->connection_specific_get(t);
 }
-connection_specific_data *session::release_specific(const std::type_info &t) {
+std::shared_ptr<connection_specific_data> session::release_specific(const std::type_info &t) {
 	return conn_->connection_specific_release(t);
 }
-void session::reset_specific(const std::type_info &t, connection_specific_data *p) {
+void session::reset_specific(const std::type_info &t, std::shared_ptr<connection_specific_data> p) {
 	conn_->connection_specific_reset(t, p);
 }
 
