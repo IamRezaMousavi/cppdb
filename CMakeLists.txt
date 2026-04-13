@@ -18,7 +18,7 @@ option(WITH_ODBC "Enable ODBC backend" OFF)
 
 set(LIBDIR lib CACHE STRING "Library installation directory")
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)  # for shared library
 
@@ -26,9 +26,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)  # for shared library
 
 if(CMAKE_COMPILER_IS_GNUCXX)
 	set(CXX_FLAGS "-Wall -Wextra")
-	if(CMAKE_SYSTEM_NAME STREQUAL "SunOS")
-		set(CXX_FLAGS "${CXX_FLAGS} -pthreads")
-	endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 	set(CXX_FLAGS "-Wall")
 elseif(MSVC)
@@ -144,12 +141,6 @@ if(NOT WIN32)
     if(DL_LIB)
         target_link_libraries(${PROJECT_NAME} PUBLIC
             ${DL_LIB}
-        )
-    endif()
-    find_library(PTHREAD_LIB pthread NAMES thr kse)
-    if(PTHREAD_LIB)
-        target_link_libraries(${PROJECT_NAME} PUBLIC
-            ${PTHREAD_LIB}
         )
     endif()
 endif()

@@ -95,10 +95,10 @@ module statically into the library you may do following.
 For example:
 
 \verbatim
-g++ my_program.o /usr/lib/libcppdb.a /usr/lib/libcppdb_sqlite3.a -lpthread -ldl -lsqlite3
+g++ my_program.o /usr/lib/libcppdb.a /usr/lib/libcppdb_sqlite3.a -ldl -lsqlite3
 \endverbatim
 
-Where libcppdb.a and libcppdb_sqlite3.a are the static version of the library and the module, "-lpthread -ldl" are
+Where libcppdb.a and libcppdb_sqlite3.a are the static version of the library and the module, "-ldl" are
 dependencies of libcppdb and "-lsqlite3" is the dependency of sqlite3 module.
 
 \section advanced_drivers_installing Adding Backend to Driver
