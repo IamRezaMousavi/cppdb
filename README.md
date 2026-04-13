@@ -33,8 +33,8 @@ Based on these goals, this fork offers the following Key Features:
 
 ### Prerequisites
 
-* A C++ compiler with C++20 support (e.g., GCC 10+, Clang 10+, MSVC 19.29+).
-* CMake version 3.16 or higher.
+* A C++ compiler with C++11 support (e.g., GCC 4.8+, Clang 3.4+, MSVC 140+).
+* CMake version 3.10 or higher.
 * Relevant drivers for your target database.
   * Sqlite3 - the library and headers themselfs
   * MySQL - libmysqlclient

@@ -1,5 +1,32 @@
 /*! \page changelog Changelog
 
+\section changelog_v0_4_1 Version 0.4.1
+
+Features:
+
+- Error Handling: Added errno to error classes.
+- Logging: Implemented a new logging class.
+
+Refactoring:
+
+- Smart Pointers: Extensive migration from ref_ptr and auto_ptr to std::shared_ptr and std::unique_ptr across various components.
+- Concurrency: Switched to std::mutex and std::atomic_int from manual implementation.
+
+Build System:
+
+- Dependencies: Removed the pthread dependency.
+- Build Scripts: Cleaned up and refactored build scripts.
+
+License:
+
+- License: Changed license to LGPL.
+
+Testing:
+
+- Test Output: Improved test output and formatted test code.
+
+-
+
 \section changelog_v0_3_1 Version 0.3.1
 
 New Features:
