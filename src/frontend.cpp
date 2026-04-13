@@ -3,6 +3,7 @@
 #include <cppdb/backend.hpp>
 #include <cppdb/conn_manager.hpp>
 #include <cppdb/frontend.hpp>
+#include <cppdb/logging.hpp>
 #include <cppdb/pool.hpp>
 
 namespace cppdb {
@@ -423,19 +424,22 @@ unsigned long long statement::affected() {
 }
 
 result statement::row() {
+	CPPDB_LOG_INFO << "statement: fetch one row";
 	throw_guard g(conn_);
 	auto backend_res = stat_->query();
 	result res(backend_res, stat_, conn_);
 	if (res.next()) {
 		if (res.res_->has_next() == backend::result::next_row_exists) {
 			g.done();
-			throw multiple_rows_query();
+			// throw multiple_rows_query();
+			CPPDB_LOG_WARNING << "statement: fetch more than one row with row operation";
 		}
 	}
 	return res;
 }
 
 result statement::query() {
+	CPPDB_LOG_INFO << "statement: fetch query with multi row";
 	throw_guard g(conn_);
 	auto res(stat_->query());
 	return result(res, stat_, conn_);
@@ -444,6 +448,7 @@ statement::operator result() {
 	return query();
 }
 void statement::exec() {
+	CPPDB_LOG_INFO << "statement: exec";
 	throw_guard g(conn_);
 	stat_->exec();
 }
@@ -460,7 +465,9 @@ session::session(std::shared_ptr<backend::connection> conn) : conn_(conn) {}
 session::session(std::shared_ptr<backend::connection> conn, const once_functor &f) : conn_(conn) {
 	once(f);
 }
-session::~session() {}
+session::~session() {
+	CPPDB_LOG_DEBUG << "session: destroy";
+}
 session::session(const connection_info &ci) {
 	open(ci);
 }
@@ -480,6 +487,7 @@ void session::open(const connection_info &ci) {
 	conn_ = connections_manager::instance().open(ci);
 }
 void session::open(const std::string &cs) {
+	CPPDB_LOG_DEBUG << "session: open";
 	conn_ = connections_manager::instance().open(cs);
 }
 void session::close() {
@@ -491,6 +499,7 @@ bool session::is_open() {
 }
 
 statement session::prepare(const std::string &query) {
+	CPPDB_LOG_DEBUG << "statement: create with query " << query;
 	throw_guard g(conn_);
 	std::shared_ptr<backend::statement> stat_ptr(conn_->prepare(query));
 	statement stat(stat_ptr, conn_);

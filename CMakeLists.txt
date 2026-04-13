@@ -164,6 +164,10 @@ option(WITH_EXAMPLE "Enable Examples" OFF)
 if(WITH_EXAMPLE)
     add_executable(example examples/example1.cpp)
     target_link_libraries(example ${PROJECT_NAME} ${INTERNAL_LIBRARIES})
+	add_executable(example_mysql examples/example1mysql.cpp)
+	target_link_libraries(example_mysql ${PROJECT_NAME} ${INTERNAL_LIBRARIES})
+	add_executable(example_logging examples/examplelogging.cpp)
+	target_link_libraries(example_logging ${PROJECT_NAME} ${INTERNAL_LIBRARIES})
 endif()
 
 install(TARGETS ${PROJECT_NAME}

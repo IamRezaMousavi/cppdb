@@ -1,6 +1,7 @@
 #define CPPDB_SOURCE
 
 #include <cppdb/backend.hpp>
+#include <cppdb/logging.hpp>
 #include <cppdb/pool.hpp>
 #include <cppdb/utils.hpp>
 
@@ -176,8 +177,11 @@ connection::connection(const connection_info &info)
 		default_is_prepared_ = 0;
 	else
 		throw cppdb_error("cppdb::backend::connection: @use_prepared should be either 'on' or 'off'");
+	CPPDB_LOG_INFO << "conn: create new one";
 }
-connection::~connection() {}
+connection::~connection() {
+	CPPDB_LOG_INFO << "conn: destory";
+}
 
 bool connection::once_called() const {
 	return once_called_;

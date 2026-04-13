@@ -2,6 +2,7 @@
 
 #include <cppdb/backend.hpp>
 #include <cppdb/driver_manager.hpp>
+#include <cppdb/logging.hpp>
 #include <cppdb/pool.hpp>
 #include <cppdb/utils.hpp>
 
@@ -24,9 +25,12 @@ std::shared_ptr<pool> pool::create(const std::string &cs) {
 pool::pool(const connection_info &ci) : limit_(0), life_time_(0), ci_(ci), size_(0) {
 	limit_ = ci_.get("@pool_size", 16);
 	life_time_ = ci_.get("@pool_max_idle", 600);
+	CPPDB_LOG_INFO << "pool: create with limit " << limit_;
 }
 
-pool::~pool() {}
+pool::~pool() {
+	CPPDB_LOG_INFO << "pool: desetory";
+}
 
 std::shared_ptr<backend::connection> pool::open() {
 	if (limit_ == 0)
@@ -35,7 +39,10 @@ std::shared_ptr<backend::connection> pool::open() {
 	std::shared_ptr<backend::connection> p = get();
 
 	if (!p) {
+		CPPDB_LOG_DEBUG << "pool: pool connection is empty";
 		p = driver_manager::instance().connect(ci_);
+	} else {
+		CPPDB_LOG_INFO << "pool: use connection";
 	}
 	p->set_pool(shared_from_this());
 	return p;
@@ -74,6 +81,7 @@ std::shared_ptr<backend::connection> pool::get() {
 
 // this is thread safe member function
 void pool::put(backend::connection *c_in) {
+	CPPDB_LOG_INFO << "pool: put connection to pool";
 	std::shared_ptr<backend::connection> c = backend::make_conn<backend::connection>(c_in);
 	if (limit_ == 0)
 		return;
