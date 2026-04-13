@@ -25,6 +25,10 @@ namespace mysql_backend {
 class cppdb_myerror : public cppdb_error {
 public:
 	cppdb_myerror(const std::string &str) : cppdb_error("cppdb::mysql::" + str) {}
+	cppdb_myerror(const std::string &str, const unsigned int code) : cppdb_error("cppdb::mysql::" + str, code) {}
+
+	cppdb_myerror(MYSQL *conn) : cppdb_myerror(mysql_error(conn), mysql_errno(conn)) {}
+	cppdb_myerror(MYSQL_STMT *stmt) : cppdb_myerror(mysql_stmt_error(stmt), mysql_stmt_errno(stmt)) {}
 };
 
 namespace unprep {
@@ -322,7 +326,7 @@ public:
 		bind_all(real_query);
 		reset_params();
 		if (mysql_real_query(conn_, real_query.c_str(), real_query.size())) {
-			throw cppdb_myerror(mysql_error(conn_));
+			throw cppdb_myerror(conn_);
 		}
 		return std::make_shared<result>(conn_);
 	}
@@ -332,7 +336,7 @@ public:
 		bind_all(real_query);
 		reset_params();
 		if (mysql_real_query(conn_, real_query.c_str(), real_query.size())) {
-			throw cppdb_myerror(mysql_error(conn_));
+			throw cppdb_myerror(conn_);
 		}
 		MYSQL_RES *r = mysql_store_result(conn_);
 		if (r) {
@@ -418,7 +422,7 @@ public:
 		reset();
 		if (cols_ > 0) {
 			if (mysql_stmt_bind_result(stmt_, &bind_[0])) {
-				throw cppdb_myerror(mysql_stmt_error(stmt_));
+				throw cppdb_myerror(stmt_);
 			}
 		}
 		int r = mysql_stmt_fetch(stmt_);
@@ -433,7 +437,7 @@ public:
 					bind_[i].buffer = &bind_data_[i].vbuf.front();
 					bind_[i].buffer_length = bind_data_[i].length;
 					if (mysql_stmt_fetch_column(stmt_, &bind_[i], i, 0)) {
-						throw cppdb_myerror(mysql_stmt_error(stmt_));
+						throw cppdb_myerror(stmt_);
 					}
 					bind_data_[i].ptr = &bind_data_[i].vbuf.front();
 				}
@@ -648,7 +652,7 @@ public:
 		fmt_.imbue(std::locale::classic());
 		cols_ = mysql_stmt_field_count(stmt_);
 		if (mysql_stmt_store_result(stmt_)) {
-			throw cppdb_myerror(mysql_stmt_error(stmt_));
+			throw cppdb_myerror(stmt_);
 		}
 		meta_ = mysql_stmt_result_metadata(stmt_);
 		if (!meta_) {
@@ -920,7 +924,7 @@ public:
 			for (unsigned i = 0; i < params_.size(); i++)
 				params_[i].bind_it(&bind_[i]);
 			if (mysql_stmt_bind_param(stmt_, &bind_.front())) {
-				throw cppdb_myerror(mysql_stmt_error(stmt_));
+				throw cppdb_myerror(stmt_);
 			}
 		}
 	}
@@ -931,7 +935,7 @@ public:
 	virtual std::shared_ptr<backend::result> query() {
 		bind_all();
 		if (mysql_stmt_execute(stmt_)) {
-			throw cppdb_myerror(mysql_stmt_error(stmt_));
+			throw cppdb_myerror(stmt_);
 		}
 		return std::make_shared<result>(stmt_);
 	}
@@ -941,10 +945,10 @@ public:
 	virtual void exec() {
 		bind_all();
 		if (mysql_stmt_execute(stmt_)) {
-			throw cppdb_myerror(mysql_stmt_error(stmt_));
+			throw cppdb_myerror(stmt_);
 		}
 		if (mysql_stmt_store_result(stmt_)) {
-			throw cppdb_myerror(mysql_stmt_error(stmt_));
+			throw cppdb_myerror(stmt_);
 		}
 		MYSQL_RES *r = mysql_stmt_result_metadata(stmt_);
 		if (r) {
@@ -965,7 +969,7 @@ public:
 				throw cppdb_myerror(" Failed to create a statement");
 			}
 			if (mysql_stmt_prepare(stmt_, q.c_str(), q.size())) {
-				throw cppdb_myerror(mysql_stmt_error(stmt_));
+				throw cppdb_myerror(stmt_);
 			}
 			params_count_ = mysql_stmt_param_count(stmt_);
 			reset_data();
@@ -1160,7 +1164,7 @@ public:
 
 	void exec(const std::string &s) {
 		if (mysql_real_query(conn_, s.c_str(), s.size())) {
-			throw cppdb_myerror(mysql_error(conn_));
+			throw cppdb_myerror(conn_);
 		}
 	}
 

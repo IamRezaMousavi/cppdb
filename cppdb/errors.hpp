@@ -15,6 +15,14 @@ public:
 	/// Create a cppdb_error with error message \a v
 	///
 	cppdb_error(const std::string &v) : std::runtime_error(v) {}
+	cppdb_error(const std::string &v, const unsigned int code) : std::runtime_error(v), code_(code) {}
+
+	unsigned int code() const {
+		return code_;
+	}
+
+protected:
+	unsigned int code_ = 0;
 };
 
 ///
