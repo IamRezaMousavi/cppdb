@@ -14,10 +14,10 @@ namespace cppdb {
 /// and save them withing the connection
 ///
 class CPPDB_API connection_specific_data {
-	connection_specific_data(const connection_specific_data &);
-	void operator=(const connection_specific_data &);
-
 public:
+	connection_specific_data(const connection_specific_data &) = delete;
+	void operator=(const connection_specific_data &) = delete;
+
 	connection_specific_data();
 	virtual ~connection_specific_data();
 

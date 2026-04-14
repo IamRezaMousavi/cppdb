@@ -333,7 +333,7 @@ public:
 				throw cppdb_error(std::string("sqlite3:Failed to open connection:") + sqlite3_errmsg(conn_));
 			}
 
-			if (busy != -1 && sqlite3_busy_timeout(conn_, busy) != 0)
+			if (busy != -1 && sqlite3_busy_timeout(conn_, busy) != SQLITE_OK)
 				throw cppdb_error(std::string("sqlite3:Failed to set timeout:") + sqlite3_errmsg(conn_));
 		} catch (...) {
 			if (conn_) {

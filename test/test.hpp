@@ -1,11 +1,7 @@
-#ifndef CPPDB_TEST_H
-#define CPPDB_TEST_H
-
-#include <stdlib.h>
+#ifndef CPPDB_TEST_HPP
+#define CPPDB_TEST_HPP
 
 #include <iostream>
-#include <memory>
-#include <sstream>
 #include <stdexcept>
 
 int last_line = 0;
@@ -33,8 +29,7 @@ int failed = 0;
 		} catch (ex const & /*un*/) {                                        \
 			passed++;                                                        \
 		}                                                                    \
-	} while (0)
-#endif
+	} while (false)
 
 #define CATCH_BLOCK()                                      \
 	catch (std::exception const &e) {                      \
@@ -49,4 +44,6 @@ int failed = 0;
 		}                                                                                       \
 		std::cout << "[RESULT] ALL TESTS PASSED\n";                                             \
 		return 0;                                                                               \
-	} while (0)
+	} while (false)
+
+#endif /* CPPDB_TEST_HPP */

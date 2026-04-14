@@ -1,7 +1,9 @@
 #ifndef CPPDB_DRIVER_MANAGER_HPP
 #define CPPDB_DRIVER_MANAGER_HPP
 
+#include <cppdb/backend.hpp>
 #include <cppdb/defs.h>
+#include <cppdb/utils.hpp>
 
 #include <map>
 #include <mutex>
@@ -10,12 +12,6 @@
 
 namespace cppdb {
 
-namespace backend {
-class connection;
-class driver;
-} // namespace backend
-class connection_info;
-
 ///
 /// \brief this class is used to handle all drivers, loading them, unloading them etc.
 ///
@@ -23,6 +19,8 @@ class connection_info;
 ///
 class CPPDB_API driver_manager {
 public:
+	driver_manager(const driver_manager &) = delete;
+	void operator=(const driver_manager &) = delete;
 	///
 	/// Get the singleton instance of the class
 	///
@@ -58,12 +56,6 @@ public:
 	std::shared_ptr<backend::connection> connect(const std::string &connectoin_string);
 
 private:
-	driver_manager(const driver_manager &);
-	void operator=(const driver_manager &);
-// Borland erros on hidden destructors in classes without only static methods.
-#ifndef __BORLANDC__
-	~driver_manager();
-#endif
 	driver_manager();
 
 	std::shared_ptr<backend::driver> load_driver(const connection_info &ci);

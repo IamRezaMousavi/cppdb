@@ -122,7 +122,7 @@ void statements_cache::clear() {
 statements_cache::~statements_cache() {}
 
 bool statements_cache::active() {
-	return d.get() != 0;
+	return d.get() != nullptr;
 }
 
 //////////////
@@ -164,8 +164,7 @@ std::shared_ptr<statement> connection::get_prepared_uncached_statement(const std
 	return st;
 }
 
-connection::connection(const connection_info &info)
-	: d(new connection::data), pool_(0) {
+connection::connection(const connection_info &info) : d(new connection::data), pool_(0) {
 	int cache_size = info.get("@stmt_cache_size", 64);
 	if (cache_size > 0) {
 		cache_.set_size(cache_size);

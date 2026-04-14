@@ -13,12 +13,12 @@ namespace cppdb {
 /// \brief This class allows to load and unload shared objects in simple and exception safe way.
 ///
 class CPPDB_API shared_object {
-	shared_object() {}
 	shared_object(std::string name, void *h);
-	shared_object(const shared_object &);
-	void operator=(const shared_object &);
 
 public:
+	shared_object(const shared_object &) = delete;
+	void operator=(const shared_object &) = delete;
+
 	~shared_object();
 	///
 	/// Load shared object, returns empty pointer if the object does not exits or not loadable

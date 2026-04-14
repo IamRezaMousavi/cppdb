@@ -1,7 +1,10 @@
 #ifndef CPPDB_CONN_MANAGER_HPP
 #define CPPDB_CONN_MANAGER_HPP
 
+#include <cppdb/backend.hpp>
 #include <cppdb/defs.h>
+#include <cppdb/pool.hpp>
+#include <cppdb/utils.hpp>
 
 #include <map>
 #include <memory>
@@ -9,12 +12,6 @@
 #include <string>
 
 namespace cppdb {
-
-class pool;
-class connection_info;
-namespace backend {
-class connection;
-}
 
 ///
 /// \brief This class is the major gateway to new connections
@@ -25,14 +22,10 @@ class connection;
 ///
 class CPPDB_API connections_manager {
 	connections_manager();
-// Borland erros on hidden destructors in classes without only static methods.
-#ifndef __BORLANDC__
-	~connections_manager();
-#endif
-	connections_manager(connections_manager const &);
-	void operator=(const connections_manager &);
 
 public:
+	connections_manager(const connections_manager &) = delete;
+	void operator=(const connections_manager &) = delete;
 	///
 	/// Get a singleton instance of the class
 	///

@@ -1,13 +1,11 @@
 #ifndef CPPDB_FRONTEND_HPP
 #define CPPDB_FRONTEND_HPP
 
+#include <cppdb/backend.hpp>
 #include <cppdb/defs.h>
 #include <cppdb/errors.hpp>
-
-// Borland errors about unknown pool-type without this include.
-#ifdef __BORLANDC__
-#include <cppdb/backend.hpp>
-#endif
+#include <cppdb/pool.hpp>
+#include <cppdb/utils.hpp>
 
 #include <ctime>
 #include <iosfwd>
@@ -21,11 +19,7 @@
 
 namespace cppdb {
 
-class result;
-class statement;
 class session;
-class connection_info;
-class connection_specific_data;
 
 ///
 /// Get CppDB Version String. It consists of "A.B.C", where A
@@ -39,15 +33,6 @@ CPPDB_API const char *version_string();
 /// C is patch version
 ///
 CPPDB_API int version_number();
-
-// Borland needs pool.h, but not this forward declaration.
-#ifndef __BORLANDC__
-namespace backend {
-class result;
-class statement;
-class connection;
-} // namespace backend
-#endif
 
 ///
 /// Null value marker
@@ -692,17 +677,6 @@ public:
 	///
 	statement &bind_null();
 
-// Without the following statement &operator<<(T v) errors for tags::use_tag<T> as T.
-#ifdef __BORLANDC__
-	template <typename T>
-	statement &bind(tags::use_tag<T> const &val) {
-		if (val.tag == null_value)
-			return bind_null();
-		else
-			return bind(val.value);
-	}
-#endif
-
 	///
 	/// Bind a value \a v to the placeholder number \a col (starting from 1) marked with '?' marker in the query.
 	///
@@ -1184,7 +1158,7 @@ public:
 	void reset_specific(const std::type_info &t, std::shared_ptr<connection_specific_data> p = nullptr);
 
 	///
-	/// Get connection specific object by its type \a T, returns 0 if not installed yet
+	/// Get connection specific object by its type \a T, returns nullptr if not installed yet
 	///
 	template <typename T>
 	std::shared_ptr<T> get_specific() {
@@ -1218,10 +1192,9 @@ private:
 /// the transaction is committed
 ///
 class CPPDB_API transaction {
-	transaction(const transaction &);
-	void operator=(const transaction &);
-
 public:
+	transaction(const transaction &) = delete;
+	void operator=(const transaction &) = delete;
 	///
 	/// Begin a transaction on session \a s, calls s.begin()
 	///

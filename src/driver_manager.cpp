@@ -160,12 +160,8 @@ void driver_manager::install_driver(const std::string &name, std::shared_ptr<bac
 }
 
 driver_manager::driver_manager() : no_default_directory_(false) {}
-// Borland erros on hidden destructors in classes without only static methods.
-#ifndef __BORLANDC__
-driver_manager::~driver_manager() {}
-#endif
 
-void driver_manager::add_search_path(std::string const &p) {
+void driver_manager::add_search_path(const std::string &p) {
 	std::lock_guard<std::mutex> lock(lock_);
 	search_paths_.push_back(p);
 }

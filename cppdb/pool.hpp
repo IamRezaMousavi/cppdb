@@ -26,11 +26,10 @@ class connection;
 /// All this class member functions are thread safe to use from several threads for the same object
 ///
 class CPPDB_API pool : public std::enable_shared_from_this<pool> {
-	pool();
-	pool(const pool &);
-	void operator=(const pool &);
-
 public:
+	pool(const pool &) = delete;
+	void operator=(const pool &) = delete;
+
 	pool(const connection_info &ci);
 	/// Create new pool for \a connection_string
 	static std::shared_ptr<pool> create(const std::string &connection_string);

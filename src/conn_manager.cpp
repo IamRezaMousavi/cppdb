@@ -8,10 +8,6 @@
 namespace cppdb {
 struct connections_manager::data {};
 connections_manager::connections_manager() {}
-// Borland erros on hidden destructors in classes without only static methods.
-#ifndef __BORLANDC__
-connections_manager::~connections_manager() {}
-#endif
 
 connections_manager &connections_manager::instance() {
 	static connections_manager mgr;

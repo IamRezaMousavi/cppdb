@@ -146,19 +146,19 @@ int main(int argc, char **argv) {
 		TEST(cppdb::statement().empty());
 
 		sql.reset_specific(std::make_shared<my_specific_a>(10));
-		TEST(sql.get_specific<my_specific_b>() == 0);
-		TEST(sql.get_specific<my_specific_a>() != 0);
+		TEST(sql.get_specific<my_specific_b>() == nullptr);
+		TEST(sql.get_specific<my_specific_a>() != nullptr);
 		TEST(sql.get_specific<my_specific_a>()->val == 10);
 		sql.reset_specific(std::make_shared<my_specific_b>(20));
-		TEST(sql.get_specific<my_specific_b>() != 0);
-		TEST(sql.get_specific<my_specific_a>() != 0);
+		TEST(sql.get_specific<my_specific_b>() != nullptr);
+		TEST(sql.get_specific<my_specific_a>() != nullptr);
 		TEST(sql.get_specific<my_specific_a>()->val == 10);
 		TEST(sql.get_specific<my_specific_b>()->val == 20);
 		sql.reset_specific<my_specific_b>();
-		TEST(sql.get_specific<my_specific_b>() == 0);
-		TEST(sql.get_specific<my_specific_a>() != 0);
+		TEST(sql.get_specific<my_specific_b>() == nullptr);
+		TEST(sql.get_specific<my_specific_a>() != nullptr);
 		auto p = sql.release_specific<my_specific_a>();
-		TEST(p != 0);
+		TEST(p != nullptr);
 		p.reset();
 		TEST(sql.get_specific<my_specific_a>() == 0);
 		TEST(sql.release_specific<my_specific_a>() == 0);

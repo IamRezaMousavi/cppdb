@@ -4,26 +4,15 @@
 #include <cppdb/connection_specific.hpp>
 #include <cppdb/defs.h>
 #include <cppdb/errors.hpp>
+#include <cppdb/pool.hpp>
+#include <cppdb/utils.hpp>
 
 #include <ctime>
-#include <iosfwd>
-#include <map>
 #include <memory>
 #include <string>
 #include <typeinfo>
 
-// Borland errors about unknown pool-type without this include.
-#ifdef __BORLANDC__
-#include <cppdb/pool.hpp>
-#endif
-
 namespace cppdb {
-
-class connection_info;
-// Borland needs pool.h, but not this forward declaration.
-#ifndef __BORLANDC__
-class pool;
-#endif
 
 ///
 /// \brief This namepace includes all classes required to implement a cppdb SQL backend.
@@ -397,10 +386,10 @@ std::shared_ptr<T> make_stmt(Args &&...args) {
 
 /// \cond INTERNAL
 class CPPDB_API statements_cache {
-	statements_cache(const statements_cache &);
-	void operator=(const statements_cache &);
-
 public:
+	statements_cache(const statements_cache &) = delete;
+	void operator=(const statements_cache &) = delete;
+
 	statements_cache();
 	bool active();
 	void set_size(size_t n);
@@ -424,10 +413,10 @@ class connection;
 /// class
 ///
 class CPPDB_API driver {
-	driver(const driver &);
-	void operator=(const driver &);
-
 public:
+	driver(const driver &) = delete;
+	void operator=(const driver &) = delete;
+
 	driver() {}
 	virtual ~driver() {}
 	///
@@ -445,10 +434,10 @@ public:
 /// \brief This class represents a driver that can be unloaded from the driver_manager.
 ///
 class CPPDB_API loadable_driver : public driver, public std::enable_shared_from_this<loadable_driver> {
-	loadable_driver(const loadable_driver &);
-	void operator=(const loadable_driver &);
-
 public:
+	loadable_driver(const loadable_driver &) = delete;
+	void operator=(const loadable_driver &) = delete;
+
 	loadable_driver() {}
 	virtual ~loadable_driver() {}
 
