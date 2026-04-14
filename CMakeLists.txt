@@ -22,22 +22,6 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)  # for shared library
 
-#add_compile_options(-Wall -Wextra -pedantic -Werror)
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-	set(CXX_FLAGS "-Wall -Wextra")
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-	set(CXX_FLAGS "-Wall")
-elseif(MSVC)
-	set(CXX_FLAGS "/EHsc /W3")
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
-	if(CMAKE_SYSTEM_NAME STREQUAL "SunOS")
-		set(CXX_FLAGS "${CXX_FLAGS} -mt")
-	endif()
-endif()
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_FLAGS}")
-
 # General settings
 
 include_directories(.)
@@ -127,6 +111,32 @@ set(CPPDB_SRC
 
 add_library(${PROJECT_NAME} STATIC ${CPPDB_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS CPPDB_EXPORTS)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	target_compile_options(${PROJECT_NAME} PRIVATE
+		-Wall -Wextra -pedantic -Werror
+		-Wno-potentially-evaluated-expression
+	)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	target_compile_options(${PROJECT_NAME} PRIVATE
+		-Wall -Wextra -pedantic -Werror
+		-Wno-potentially-evaluated-expression
+	)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+	target_compile_options(${PROJECT_NAME} PRIVATE
+		-Wall
+	)
+elseif(MSVC)
+	target_compile_options(${PROJECT_NAME} PRIVATE
+		/EHsc /W3
+	)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
+	if(CMAKE_SYSTEM_NAME STREQUAL "SunOS")
+		target_compile_options(${PROJECT_NAME} PRIVATE
+			-mt
+		)
+	endif()
+endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}

@@ -613,10 +613,9 @@ private:
 	statements_cache cache_;
 	std::shared_ptr<loadable_driver> driver_;
 	std::shared_ptr<pool> pool_;
-	unsigned default_is_prepared_ : 1;
-	unsigned once_called_ : 1;
-	unsigned recyclable_ : 1;
-	unsigned reserverd_ : 29;
+	bool default_is_prepared_ = true;
+	bool once_called_ = false;
+	bool recyclable_ = true;
 };
 
 template <typename T>

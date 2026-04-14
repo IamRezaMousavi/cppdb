@@ -1181,7 +1181,7 @@ public:
 	///
 	/// Deletes connection specific object of type \a t, and sets a new one \a p (if not NULL)
 	///
-	void reset_specific(const std::type_info &t, std::shared_ptr<connection_specific_data> p = 0);
+	void reset_specific(const std::type_info &t, std::shared_ptr<connection_specific_data> p = nullptr);
 
 	///
 	/// Get connection specific object by its type \a T, returns 0 if not installed yet

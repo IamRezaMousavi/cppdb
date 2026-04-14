@@ -165,16 +165,16 @@ std::shared_ptr<statement> connection::get_prepared_uncached_statement(const std
 }
 
 connection::connection(const connection_info &info)
-	: d(new connection::data), pool_(0), once_called_(0), recyclable_(1) {
+	: d(new connection::data), pool_(0) {
 	int cache_size = info.get("@stmt_cache_size", 64);
 	if (cache_size > 0) {
 		cache_.set_size(cache_size);
 	}
 	std::string def_is_prep = info.get("@use_prepared", "on");
 	if (def_is_prep == "on")
-		default_is_prepared_ = 1;
+		default_is_prepared_ = true;
 	else if (def_is_prep == "off")
-		default_is_prepared_ = 0;
+		default_is_prepared_ = false;
 	else
 		throw cppdb_error("cppdb::backend::connection: @use_prepared should be either 'on' or 'off'");
 	CPPDB_LOG_INFO << "conn: create new one";
