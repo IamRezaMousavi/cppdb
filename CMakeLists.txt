@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(berry VERSION 0.4.1)
+project(berry VERSION 0.4.2)
 
 set(CPPDB_VERSION ${PROJECT_VERSION})
 set(CPPDB_SOVERSION ${PROJECT_VERSION_MAJOR})

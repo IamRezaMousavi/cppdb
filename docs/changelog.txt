@@ -1,6 +1,21 @@
 /*! \page changelog Changelog
 
-\section changelog_v0_4_1 Version 0.4.1
+\section changelog_v0_4_2 Version 0.4.2 (2026-04-14)
+
+Breaking change:
+
+- Drop support Borland compiler
+
+Bugs:
+
+- fix some compiler warnings
+
+Build System:
+
+- Improved installation method
+
+
+\section changelog_v0_4_1 Version 0.4.1 (2026-04-14)
 
 Features:
 
@@ -25,9 +40,9 @@ Testing:
 
 - Test Output: Improved test output and formatted test code.
 
--
 
-\section changelog_v0_3_1 Version 0.3.1
+
+\section changelog_v0_3_1 Version 0.3.1 (2012-06-23)
 
 New Features:
 
