@@ -438,12 +438,12 @@ public:
 	void operator=(const loadable_driver &) = delete;
 
 	loadable_driver() = default;
-	virtual ~loadable_driver() = default;
+	~loadable_driver() override = default;
 
 	///
 	/// Creates a new connection object and keeps track of them for handing (in_use) correctly
 	///
-	virtual connection *connect(const connection_info &cs);
+	connection *connect(const connection_info &cs) override;
 };
 
 extern "C" {
@@ -467,11 +467,11 @@ public:
 	/// Create a new driver that creates connection using function \a c
 	///
 	static_driver(connect_function_type c);
-	~static_driver() = default;
+	~static_driver() override = default;
 	///
 	/// Create new connection - basically calls the function to create the object
 	///
-	backend::connection *open(const connection_info &ci);
+	backend::connection *open(const connection_info &ci) override;
 
 private:
 	connect_function_type connect_;

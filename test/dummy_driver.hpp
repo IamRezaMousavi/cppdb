@@ -9,67 +9,67 @@ int drivers = 0;
 
 class result : public cppdb::backend::result {
 public:
-	virtual next_row has_next() {
+	next_row has_next() override {
 		return next_row_unknown;
 	}
-	virtual bool next() {
+	bool next() override {
 		if (called_)
 			return false;
 		called_ = true;
 		return true;
 	}
-	virtual bool fetch(int, short &) {
+	bool fetch(int, short &) override {
 		return false;
 	}
-	virtual bool fetch(int, unsigned short &) {
+	bool fetch(int, unsigned short &) override {
 		return false;
 	}
-	virtual bool fetch(int, int &) {
+	bool fetch(int, int &) override {
 		return false;
 	}
-	virtual bool fetch(int, unsigned &) {
+	bool fetch(int, unsigned &) override {
 		return false;
 	}
-	virtual bool fetch(int, long &) {
+	bool fetch(int, long &) override {
 		return false;
 	}
-	virtual bool fetch(int, unsigned long &) {
+	bool fetch(int, unsigned long &) override {
 		return false;
 	}
-	virtual bool fetch(int, long long &) {
+	bool fetch(int, long long &) override {
 		return false;
 	}
-	virtual bool fetch(int, unsigned long long &) {
+	bool fetch(int, unsigned long long &) override {
 		return false;
 	}
-	virtual bool fetch(int, float &) {
+	bool fetch(int, float &) override {
 		return false;
 	}
-	virtual bool fetch(int, double &) {
+	bool fetch(int, double &) override {
 		return false;
 	}
-	virtual bool fetch(int, long double &) {
+	bool fetch(int, long double &) override {
 		return false;
 	}
-	virtual bool fetch(int, std::string &) {
+	bool fetch(int, std::string &) override {
 		return false;
 	}
-	virtual bool fetch(int, std::ostream &) {
+	bool fetch(int, std::ostream &) override {
 		return false;
 	}
-	virtual bool fetch(int, std::tm &) {
+	bool fetch(int, std::tm &) override {
 		return false;
 	}
-	virtual bool is_null(int) {
+	bool is_null(int) override {
 		return true;
 	}
-	virtual int cols() {
+	int cols() override {
 		return 10;
 	}
-	virtual int name_to_column(const std::string &) {
+	int name_to_column(const std::string &) override {
 		return -1;
 	}
-	virtual std::string column_to_name(int) {
+	std::string column_to_name(int) override {
 		throw cppdb::not_supported_by_backend("unsupported");
 	}
 
@@ -87,34 +87,34 @@ private:
 
 class statement : public cppdb::backend::statement {
 public:
-	virtual void reset() {}
-	const std::string &sql_query() {
+	void reset() override {}
+	const std::string &sql_query() override {
 		return q_;
 	}
-	virtual void bind(int, const std::string &) {}
-	virtual void bind(int, const char *) {}
-	virtual void bind(int, const char *, const char *) {}
-	virtual void bind(int, const std::tm &) {}
-	virtual void bind(int, std::istream &) {}
-	virtual void bind(int, int) {}
-	virtual void bind(int, unsigned) {}
-	virtual void bind(int, long) {}
-	virtual void bind(int, unsigned long) {}
-	virtual void bind(int, long long) {}
-	virtual void bind(int, unsigned long long) {}
-	virtual void bind(int, double) {}
-	virtual void bind(int, long double) {}
-	virtual void bind_null(int) {}
-	virtual long long sequence_last(const std::string & /*sequence*/) {
+	void bind(int, const std::string &) override {}
+	void bind(int, const char *) override {}
+	void bind(int, const char *, const char *) override {}
+	void bind(int, const std::tm &) override {}
+	void bind(int, std::istream &) override {}
+	void bind(int, int) override {}
+	void bind(int, unsigned) override {}
+	void bind(int, long) override {}
+	void bind(int, unsigned long) override {}
+	void bind(int, long long) override {}
+	void bind(int, unsigned long long) override {}
+	void bind(int, double) override {}
+	void bind(int, long double) override {}
+	void bind_null(int) override {}
+	long long sequence_last(const std::string & /*sequence*/) override {
 		throw cppdb::not_supported_by_backend("unsupported");
 	}
-	virtual unsigned long long affected() {
+	unsigned long long affected() override {
 		return 0;
 	}
-	virtual std::shared_ptr<cppdb::backend::result> query() {
+	std::shared_ptr<cppdb::backend::result> query() override {
 		return std::make_shared<result>();
 	}
-	virtual void exec() {}
+	void exec() override {}
 	statement(const std::string &q) : q_(q) {
 		statements++;
 	}
@@ -138,28 +138,28 @@ public:
 	~connection() {
 		connections--;
 	}
-	virtual void begin() {}
-	virtual void commit() {}
-	virtual void rollback() {}
-	virtual std::shared_ptr<cppdb::backend::statement> prepare_statement(const std::string &q) {
+	void begin() override {}
+	void commit() override {}
+	void rollback() override {}
+	std::shared_ptr<cppdb::backend::statement> prepare_statement(const std::string &q) override {
 		return cppdb::backend::make_stmt<statement>(q);
 	}
-	virtual std::shared_ptr<cppdb::backend::statement> create_statement(const std::string &q) {
+	std::shared_ptr<cppdb::backend::statement> create_statement(const std::string &q) override {
 		return cppdb::backend::make_stmt<statement>(q);
 	}
-	virtual std::string escape(const std::string &) {
+	std::string escape(const std::string &) override {
 		throw cppdb::not_supported_by_backend("not supported");
 	}
-	virtual std::string escape(const char *) {
+	std::string escape(const char *) override {
 		throw cppdb::not_supported_by_backend("not supported");
 	}
-	virtual std::string escape(const char *, const char *) {
+	std::string escape(const char *, const char *) override {
 		throw cppdb::not_supported_by_backend("not supported");
 	}
-	virtual std::string driver() {
+	std::string driver() override {
 		return "dummy";
 	}
-	virtual std::string engine() {
+	std::string engine() override {
 		return "dummy";
 	}
 };
@@ -169,7 +169,7 @@ public:
 	loadable_driver() {
 		drivers++;
 	}
-	connection *open(const cppdb::connection_info &cs) {
+	connection *open(const cppdb::connection_info &cs) override {
 		return new connection(cs);
 	}
 	~loadable_driver() {

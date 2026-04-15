@@ -24,13 +24,13 @@ public:
 	result(sqlite3_stmt *st, sqlite3 *conn) : st_(st), conn_(conn), column_names_prepared_(false), cols_(-1) {
 		cols_ = sqlite3_column_count(st_);
 	}
-	virtual ~result() {
+	~result() override {
 		st_ = 0;
 	}
-	virtual next_row has_next() {
+	next_row has_next() override {
 		return next_row_unknown;
 	}
-	virtual bool next() {
+	bool next() override {
 		int r = sqlite3_step(st_);
 		if (r == SQLITE_DONE)
 			return false;
@@ -63,28 +63,28 @@ public:
 		return true;
 	}
 
-	virtual bool fetch(int col, short &v) {
+	bool fetch(int col, short &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned short &v) {
+	bool fetch(int col, unsigned short &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, int &v) {
+	bool fetch(int col, int &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned &v) {
+	bool fetch(int col, unsigned &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, long &v) {
+	bool fetch(int col, long &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned long &v) {
+	bool fetch(int col, unsigned long &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, long long &v) {
+	bool fetch(int col, long long &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned long long &v) {
+	bool fetch(int col, unsigned long long &v) override {
 		return do_fetch(col, v);
 	}
 	template <typename T>
@@ -94,16 +94,16 @@ public:
 		v = static_cast<T>(sqlite3_column_double(st_, col));
 		return true;
 	}
-	virtual bool fetch(int col, float &v) {
+	bool fetch(int col, float &v) override {
 		return do_real_fetch(col, v);
 	}
-	virtual bool fetch(int col, double &v) {
+	bool fetch(int col, double &v) override {
 		return do_real_fetch(col, v);
 	}
-	virtual bool fetch(int col, long double &v) {
+	bool fetch(int col, long double &v) override {
 		return do_real_fetch(col, v);
 	}
-	virtual bool fetch(int col, std::string &v) {
+	bool fetch(int col, std::string &v) override {
 		if (do_is_null(col))
 			return false;
 		const char *txt = (const char *)sqlite3_column_text(st_, col);
@@ -111,7 +111,7 @@ public:
 		v.assign(txt, size);
 		return true;
 	}
-	virtual bool fetch(int col, std::ostream &v) {
+	bool fetch(int col, std::ostream &v) override {
 		if (do_is_null(col))
 			return false;
 		const char *txt = (const char *)sqlite3_column_text(st_, col);
@@ -119,19 +119,19 @@ public:
 		v.write(txt, size);
 		return true;
 	}
-	virtual bool fetch(int col, std::tm &v) {
+	bool fetch(int col, std::tm &v) override {
 		if (do_is_null(col))
 			return false;
 		v = parse_time((const char *)(sqlite3_column_text(st_, col)));
 		return true;
 	}
-	virtual bool is_null(int col) {
+	bool is_null(int col) override {
 		return do_is_null(col);
 	}
-	virtual int cols() {
+	int cols() override {
 		return cols_;
 	}
-	virtual int name_to_column(const std::string &n) {
+	int name_to_column(const std::string &n) override {
 		if (!column_names_prepared_) {
 			for (int i = 0; i < cols_; i++) {
 				const char *name = sqlite3_column_name(st_, i);
@@ -147,7 +147,7 @@ public:
 			return -1;
 		return p->second;
 	}
-	virtual std::string column_to_name(int col) {
+	std::string column_to_name(int col) override {
 		check(col);
 		const char *name = sqlite3_column_name(st_, col);
 		if (!name) {
@@ -174,7 +174,7 @@ private:
 
 class statement : public backend::statement {
 public:
-	virtual void reset() {
+	void reset() override {
 		reset_stat();
 		sqlite3_clear_bindings(st_);
 	}
@@ -184,24 +184,24 @@ public:
 			reset_ = true;
 		}
 	}
-	virtual void bind(int col, const std::string &v) {
+	void bind(int col, const std::string &v) override {
 		reset_stat();
 		check_bind(sqlite3_bind_text(st_, col, v.c_str(), v.size(), SQLITE_TRANSIENT));
 	}
-	virtual void bind(int col, const char *s) {
+	void bind(int col, const char *s) override {
 		reset_stat();
 		check_bind(sqlite3_bind_text(st_, col, s, -1, SQLITE_TRANSIENT));
 	}
-	virtual void bind(int col, const char *b, const char *e) {
+	void bind(int col, const char *b, const char *e) override {
 		reset_stat();
 		check_bind(sqlite3_bind_text(st_, col, b, e - b, SQLITE_TRANSIENT));
 	}
-	virtual void bind(int col, const std::tm &v) {
+	void bind(int col, const std::tm &v) override {
 		reset_stat();
 		std::string tmp = cppdb::format_time(v);
 		check_bind(sqlite3_bind_text(st_, col, tmp.c_str(), tmp.size(), SQLITE_TRANSIENT));
 	}
-	virtual void bind(int col, std::istream &v) {
+	void bind(int col, std::istream &v) override {
 		reset_stat();
 		// TODO Fix me
 		std::ostringstream ss;
@@ -209,7 +209,7 @@ public:
 		std::string tmp = ss.str();
 		check_bind(sqlite3_bind_text(st_, col, tmp.c_str(), tmp.size(), SQLITE_TRANSIENT));
 	}
-	virtual void bind(int col, int v) {
+	void bind(int col, int v) override {
 		reset_stat();
 		check_bind(sqlite3_bind_int(st_, col, v));
 	}
@@ -223,42 +223,42 @@ public:
 			r = sqlite3_bind_int(st_, col, static_cast<int>(value));
 		check_bind(r);
 	}
-	virtual void bind(int col, unsigned v) {
+	void bind(int col, unsigned v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, long v) {
+	void bind(int col, long v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, unsigned long v) {
+	void bind(int col, unsigned long v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, long long v) {
+	void bind(int col, long long v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, unsigned long long v) {
+	void bind(int col, unsigned long long v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, double v) {
+	void bind(int col, double v) override {
 		reset_stat();
 		check_bind(sqlite3_bind_double(st_, col, v));
 	}
-	virtual void bind(int col, long double v) {
+	void bind(int col, long double v) override {
 		reset_stat();
 		check_bind(sqlite3_bind_double(st_, col, static_cast<double>(v)));
 	}
-	virtual void bind_null(int col) {
+	void bind_null(int col) override {
 		reset_stat();
 		check_bind(sqlite3_bind_null(st_, col));
 	}
-	virtual std::shared_ptr<backend::result> query() {
+	std::shared_ptr<backend::result> query() override {
 		reset_stat();
 		reset_ = false;
 		return std::make_shared<result>(st_, conn_);
 	}
-	virtual long long sequence_last(const std::string & /*name*/) {
+	long long sequence_last(const std::string & /*name*/) override {
 		return sqlite3_last_insert_rowid(conn_);
 	}
-	virtual void exec() {
+	void exec() override {
 		reset_stat();
 		reset_ = false;
 		int r = sqlite3_step(st_);
@@ -269,17 +269,17 @@ public:
 				check_bind(r);
 		}
 	}
-	virtual unsigned long long affected() {
+	unsigned long long affected() override {
 		return sqlite3_changes(conn_);
 	}
-	virtual const std::string &sql_query() {
+	const std::string &sql_query() override {
 		return sql_query_;
 	}
 	statement(const std::string &query, sqlite3 *conn) : st_(0), conn_(conn), reset_(true), sql_query_(query) {
 		if (sqlite3_prepare_v2(conn_, query.c_str(), query.size(), &st_, 0) != SQLITE_OK)
 			throw cppdb_error(sqlite3_errmsg(conn_));
 	}
-	~statement() {
+	~statement() override {
 		sqlite3_finalize(st_);
 	}
 
@@ -343,31 +343,31 @@ public:
 			throw;
 		}
 	}
-	virtual ~connection() {
+	~connection() override {
 		sqlite3_close(conn_);
 	}
-	virtual void begin() {
+	void begin() override {
 		fast_exec("begin");
 	}
-	virtual void commit() {
+	void commit() override {
 		fast_exec("commit");
 	}
-	virtual void rollback() {
+	void rollback() override {
 		fast_exec("rollback");
 	}
-	virtual std::shared_ptr<backend::statement> prepare_statement(const std::string &q) {
+	std::shared_ptr<backend::statement> prepare_statement(const std::string &q) override {
 		return backend::make_stmt<statement>(q, conn_);
 	}
-	virtual std::shared_ptr<backend::statement> create_statement(const std::string &q) {
+	std::shared_ptr<backend::statement> create_statement(const std::string &q) override {
 		return prepare_statement(q);
 	}
-	virtual std::string escape(const std::string &s) {
+	std::string escape(const std::string &s) override {
 		return escape(s.c_str(), s.c_str() + s.size());
 	}
-	virtual std::string escape(const char *s) {
+	std::string escape(const char *s) override {
 		return escape(s, s + strlen(s));
 	}
-	virtual std::string escape(const char *b, const char *e) {
+	std::string escape(const char *b, const char *e) override {
 		std::string result;
 		result.reserve(e - b);
 		for (; b != e; b++) {
@@ -379,10 +379,10 @@ public:
 		}
 		return result;
 	}
-	virtual std::string driver() {
+	std::string driver() override {
 		return "sqlite3";
 	}
-	virtual std::string engine() {
+	std::string engine() override {
 		return "sqlite3";
 	}
 

@@ -39,7 +39,7 @@ public:
 	/// Check if the next row in the result exists. If the DB engine can't perform
 	/// this check without loosing data for current row, it should return next_row_unknown.
 	///
-	virtual next_row has_next() {
+	next_row has_next() override {
 		if (!res_)
 			return last_row_reached;
 		if (current_row_ >= mysql_num_rows(res_))
@@ -51,7 +51,7 @@ public:
 	/// Move to next row. Should be called before first access to any of members. If no rows remain
 	/// return false, otherwise return true
 	///
-	virtual bool next() {
+	bool next() override {
 		if (!res_)
 			return false;
 		current_row_++;
@@ -95,43 +95,43 @@ public:
 		v = parse_number<T>(std::string(s, len), fmt_);
 		return true;
 	}
-	virtual bool fetch(int col, short &v) {
+	bool fetch(int col, short &v) override {
 		return do_fetch(col, v);
 		;
 	}
-	virtual bool fetch(int col, unsigned short &v) {
+	bool fetch(int col, unsigned short &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, int &v) {
+	bool fetch(int col, int &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned &v) {
+	bool fetch(int col, unsigned &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, long &v) {
+	bool fetch(int col, long &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned long &v) {
+	bool fetch(int col, unsigned long &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, long long &v) {
-		return do_fetch(col, v);
-	}
-	///
-	virtual bool fetch(int col, unsigned long long &v) {
-		return do_fetch(col, v);
-	}
-	virtual bool fetch(int col, float &v) {
-		return do_fetch(col, v);
-	}
-	virtual bool fetch(int col, double &v) {
-		return do_fetch(col, v);
-	}
-	virtual bool fetch(int col, long double &v) {
+	bool fetch(int col, long long &v) override {
 		return do_fetch(col, v);
 	}
 	///
-	virtual bool fetch(int col, std::string &v) {
+	bool fetch(int col, unsigned long long &v) override {
+		return do_fetch(col, v);
+	}
+	bool fetch(int col, float &v) override {
+		return do_fetch(col, v);
+	}
+	bool fetch(int col, double &v) override {
+		return do_fetch(col, v);
+	}
+	bool fetch(int col, long double &v) override {
+		return do_fetch(col, v);
+	}
+	///
+	bool fetch(int col, std::string &v) override {
 		size_t len;
 		const char *s = at(col, len);
 		if (!s)
@@ -139,7 +139,7 @@ public:
 		v.assign(s, len);
 		return true;
 	}
-	virtual bool fetch(int col, std::ostream &v) {
+	bool fetch(int col, std::ostream &v) override {
 		size_t len;
 		const char *s = at(col, len);
 		if (!s)
@@ -154,7 +154,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid. If the data can't be converted
 	/// to date-time it should throw bad_value_cast()
 	///
-	virtual bool fetch(int col, std::tm &v) {
+	bool fetch(int col, std::tm &v) override {
 		size_t len;
 		const char *s = at(col, len);
 		if (!s)
@@ -166,16 +166,16 @@ public:
 	///
 	/// Check if the column \a col is NULL starting from 0, should throw invalid_column() if the index out of range
 	///
-	virtual bool is_null(int col) {
+	bool is_null(int col) override {
 		return at(col) == 0;
 	}
 	///
 	/// Return the number of columns in the result. Should be valid even without calling next() first time.
 	///
-	virtual int cols() {
+	int cols() override {
 		return cols_;
 	}
-	virtual std::string column_to_name(int col) {
+	std::string column_to_name(int col) override {
 		if (col < 0 || col >= cols_)
 			throw invalid_column();
 		if (!res_)
@@ -186,7 +186,7 @@ public:
 		}
 		return flds[col].name;
 	}
-	virtual int name_to_column(const std::string &name) {
+	int name_to_column(const std::string &name) override {
 		if (!res_)
 			throw empty_row_access();
 		MYSQL_FIELD *flds = mysql_fetch_fields(res_);
@@ -212,7 +212,7 @@ public:
 			cols_ = mysql_num_fields(res_);
 		}
 	}
-	~result() {
+	~result() override {
 		if (res_)
 			mysql_free_result(res_);
 	}
@@ -227,17 +227,17 @@ private:
 
 class statement : public backend::statement {
 public:
-	virtual const std::string &sql_query() {
+	const std::string &sql_query() override {
 		return query_;
 	}
 
-	virtual void bind(int col, const std::string &s) {
+	void bind(int col, const std::string &s) override {
 		bind(col, s.c_str(), s.c_str() + s.size());
 	}
-	virtual void bind(int col, const char *s) {
+	void bind(int col, const char *s) override {
 		bind(col, s, s + strlen(s));
 	}
-	virtual void bind(int col, const char *b, const char *e) {
+	void bind(int col, const char *b, const char *e) override {
 		std::vector<char> buf(2 * (e - b) + 1);
 		size_t len = mysql_real_escape_string(conn_, &buf.front(), b, e - b);
 		std::string &s = at(col);
@@ -247,7 +247,7 @@ public:
 		s.append(&buf.front(), len);
 		s += '\'';
 	}
-	virtual void bind(int col, const std::tm &v) {
+	void bind(int col, const std::tm &v) override {
 		std::string &s = at(col);
 		s.clear();
 		s.reserve(30);
@@ -255,7 +255,7 @@ public:
 		s += cppdb::format_time(v);
 		s += '\'';
 	}
-	virtual void bind(int col, std::istream &v) {
+	void bind(int col, std::istream &v) override {
 		std::ostringstream ss;
 		ss << v.rdbuf();
 		std::string tmp = ss.str();
@@ -270,37 +270,37 @@ public:
 		std::string tmp = fmt_.str();
 		at(col).swap(tmp);
 	}
-	virtual void bind(int col, int v) {
+	void bind(int col, int v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, unsigned v) {
+	void bind(int col, unsigned v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, long v) {
+	void bind(int col, long v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, unsigned long v) {
+	void bind(int col, unsigned long v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, long long v) {
+	void bind(int col, long long v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, unsigned long long v) {
+	void bind(int col, unsigned long long v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, double v) {
+	void bind(int col, double v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, long double v) {
+	void bind(int col, long double v) override {
 		do_bind(col, v);
 	}
-	virtual void bind_null(int col) {
+	void bind_null(int col) override {
 		at(col) = "NULL";
 	}
-	virtual long long sequence_last(const std::string & /*sequence*/) {
+	long long sequence_last(const std::string & /*sequence*/) override {
 		return mysql_insert_id(conn_);
 	}
-	virtual unsigned long long affected() {
+	unsigned long long affected() override {
 		return mysql_affected_rows(conn_);
 	}
 
@@ -321,7 +321,7 @@ public:
 		real_query.append(query_, pos_, std::string::npos);
 	}
 
-	virtual std::shared_ptr<backend::result> query() {
+	std::shared_ptr<backend::result> query() override {
 		std::string real_query;
 		bind_all(real_query);
 		reset_params();
@@ -331,7 +331,7 @@ public:
 		return std::make_shared<result>(conn_);
 	}
 
-	virtual void exec() {
+	void exec() override {
 		std::string real_query;
 		bind_all(real_query);
 		reset_params();
@@ -373,8 +373,8 @@ public:
 		}
 		reset_params();
 	}
-	virtual ~statement() = default;
-	virtual void reset() {}
+
+	void reset() override {}
 
 private:
 	std::ostringstream fmt_;
@@ -407,7 +407,7 @@ public:
 	/// Check if the next row in the result exists. If the DB engine can't perform
 	/// this check without loosing data for current row, it should return next_row_unknown.
 	///
-	virtual next_row has_next() {
+	next_row has_next() override {
 		if (current_row_ >= mysql_stmt_num_rows(stmt_))
 			return last_row_reached;
 		else
@@ -417,7 +417,7 @@ public:
 	/// Move to next row. Should be called before first access to any of members. If no rows remain
 	/// return false, otherwise return true
 	///
-	virtual bool next() {
+	bool next() override {
 		current_row_++;
 		reset();
 		if (cols_ > 0) {
@@ -468,7 +468,7 @@ public:
 		v = parse_number<T>(std::string(d.ptr, d.length), fmt_);
 		return true;
 	}
-	virtual bool fetch(int col, short &v) {
+	bool fetch(int col, short &v) override {
 		return do_fetch(col, v);
 		;
 	}
@@ -479,7 +479,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid, should throw bad_value_cast() if the underlying data
 	/// can't be converted to integer or its range is not supported by the integer type.
 	///
-	virtual bool fetch(int col, unsigned short &v) {
+	bool fetch(int col, unsigned short &v) override {
 		return do_fetch(col, v);
 	}
 	///
@@ -489,7 +489,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid, should throw bad_value_cast() if the underlying data
 	/// can't be converted to integer or its range is not supported by the integer type.
 	///
-	virtual bool fetch(int col, int &v) {
+	bool fetch(int col, int &v) override {
 		return do_fetch(col, v);
 	}
 	///
@@ -499,7 +499,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid, should throw bad_value_cast() if the underlying data
 	/// can't be converted to integer or its range is not supported by the integer type.
 	///
-	virtual bool fetch(int col, unsigned &v) {
+	bool fetch(int col, unsigned &v) override {
 		return do_fetch(col, v);
 	}
 	///
@@ -509,7 +509,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid, should throw bad_value_cast() if the underlying data
 	/// can't be converted to integer or its range is not supported by the integer type.
 	///
-	virtual bool fetch(int col, long &v) {
+	bool fetch(int col, long &v) override {
 		return do_fetch(col, v);
 	}
 	///
@@ -519,7 +519,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid, should throw bad_value_cast() if the underlying data
 	/// can't be converted to integer or its range is not supported by the integer type.
 	///
-	virtual bool fetch(int col, unsigned long &v) {
+	bool fetch(int col, unsigned long &v) override {
 		return do_fetch(col, v);
 	}
 	///
@@ -529,7 +529,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid, should throw bad_value_cast() if the underlying data
 	/// can't be converted to integer or its range is not supported by the integer type.
 	///
-	virtual bool fetch(int col, long long &v) {
+	bool fetch(int col, long long &v) override {
 		return do_fetch(col, v);
 	}
 	///
@@ -539,7 +539,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid, should throw bad_value_cast() if the underlying data
 	/// can't be converted to integer or its range is not supported by the integer type.
 	///
-	virtual bool fetch(int col, unsigned long long &v) {
+	bool fetch(int col, unsigned long long &v) override {
 		return do_fetch(col, v);
 	}
 	///
@@ -549,7 +549,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid, should throw bad_value_cast() if the underlying data
 	/// can't be converted to floating point value.
 	///
-	virtual bool fetch(int col, float &v) {
+	bool fetch(int col, float &v) override {
 		return do_fetch(col, v);
 	}
 	///
@@ -559,7 +559,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid, should throw bad_value_cast() if the underlying data
 	/// can't be converted to floating point value.
 	///
-	virtual bool fetch(int col, double &v) {
+	bool fetch(int col, double &v) override {
 		return do_fetch(col, v);
 	}
 	///
@@ -569,7 +569,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid, should throw bad_value_cast() if the underlying data
 	/// can't be converted to floating point value.
 	///
-	virtual bool fetch(int col, long double &v) {
+	bool fetch(int col, long double &v) override {
 		return do_fetch(col, v);
 	}
 	///
@@ -579,7 +579,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid, any data should be convertible to
 	/// text value (as formatting integer, floating point value or date-time as string).
 	///
-	virtual bool fetch(int col, std::string &v) {
+	bool fetch(int col, std::string &v) override {
 		bind_data &d = at(col);
 		if (d.is_null)
 			return false;
@@ -593,7 +593,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid, any data should be convertible to
 	/// BLOB value as text (as formatting integer, floating point value or date-time as string).
 	///
-	virtual bool fetch(int col, std::ostream &v) {
+	bool fetch(int col, std::ostream &v) override {
 		bind_data &d = at(col);
 		if (d.is_null)
 			return false;
@@ -607,7 +607,7 @@ public:
 	/// Should throw invalid_column() \a col value is invalid. If the data can't be converted
 	/// to date-time it should throw bad_value_cast()
 	///
-	virtual bool fetch(int col, std::tm &v) {
+	bool fetch(int col, std::tm &v) override {
 		std::string tmp;
 		if (!fetch(col, tmp))
 			return false;
@@ -617,16 +617,16 @@ public:
 	///
 	/// Check if the column \a col is NULL starting from 0, should throw invalid_column() if the index out of range
 	///
-	virtual bool is_null(int col) {
+	bool is_null(int col) override {
 		return at(col).is_null;
 	}
 	///
 	/// Return the number of columns in the result. Should be valid even without calling next() first time.
 	///
-	virtual int cols() {
+	int cols() override {
 		return cols_;
 	}
-	virtual std::string column_to_name(int col) {
+	std::string column_to_name(int col) override {
 		if (col < 0 || col >= cols_)
 			throw invalid_column();
 		MYSQL_FIELD *flds = mysql_fetch_fields(meta_);
@@ -635,7 +635,7 @@ public:
 		}
 		return flds[col].name;
 	}
-	virtual int name_to_column(const std::string &name) {
+	int name_to_column(const std::string &name) override {
 		MYSQL_FIELD *flds = mysql_fetch_fields(meta_);
 		if (!flds) {
 			throw cppdb_myerror("Internal error empty fileds");
@@ -659,7 +659,7 @@ public:
 			throw cppdb_myerror("Seems that the query does not produce any result");
 		}
 	}
-	~result() {
+	~result() override {
 		mysql_free_result(meta_);
 	}
 	void reset() {
@@ -730,7 +730,7 @@ public:
 	/// Get the query the statement works with. Return it as is, used as key for statement
 	/// caching
 	///
-	virtual const std::string &sql_query() {
+	const std::string &sql_query() override {
 		return query_;
 	}
 
@@ -742,7 +742,7 @@ public:
 	/// ignore if it is impossible to know whether the placeholder exists without special
 	/// support from back-end.
 	///
-	virtual void bind(int col, const std::string &s) {
+	void bind(int col, const std::string &s) override {
 		at(col).set(s.c_str(), s.c_str() + s.size());
 	}
 	///
@@ -753,7 +753,7 @@ public:
 	/// ignore if it is impossible to know whether the placeholder exists without special
 	/// support from back-end.
 	///
-	virtual void bind(int col, const char *s) {
+	void bind(int col, const char *s) override {
 		at(col).set(s, s + strlen(s));
 	}
 	///
@@ -764,7 +764,7 @@ public:
 	/// ignore if it is impossible to know whether the placeholder exists without special
 	/// support from back-end.
 	///
-	virtual void bind(int col, const char *b, const char *e) {
+	void bind(int col, const char *b, const char *e) override {
 		at(col).set(b, e);
 	}
 	///
@@ -774,7 +774,7 @@ public:
 	/// ignore if it is impossible to know whether the placeholder exists without special
 	/// support from back-end.
 	///
-	virtual void bind(int col, const std::tm &v) {
+	void bind(int col, const std::tm &v) override {
 		at(col).set(v);
 	}
 	///
@@ -784,7 +784,7 @@ public:
 	/// ignore if it is impossible to know whether the placeholder exists without special
 	/// support from back-end.
 	///
-	virtual void bind(int col, std::istream &v) {
+	void bind(int col, std::istream &v) override {
 		std::ostringstream ss;
 		ss << v.rdbuf();
 		at(col).set_str(ss.str());
@@ -805,7 +805,7 @@ public:
 	/// ignore if it is impossible to know whether the placeholder exists without special
 	/// support from back-end.
 	///
-	virtual void bind(int col, int v) {
+	void bind(int col, int v) override {
 		do_bind(col, v);
 	}
 	///
@@ -817,7 +817,7 @@ public:
 	///
 	/// May throw bad_value_cast() if the value out of supported range by the DB.
 	///
-	virtual void bind(int col, unsigned v) {
+	void bind(int col, unsigned v) override {
 		do_bind(col, v);
 	}
 	///
@@ -829,7 +829,7 @@ public:
 	///
 	/// May throw bad_value_cast() if the value out of supported range by the DB.
 	///
-	virtual void bind(int col, long v) {
+	void bind(int col, long v) override {
 		do_bind(col, v);
 	}
 	///
@@ -841,7 +841,7 @@ public:
 	///
 	/// May throw bad_value_cast() if the value out of supported range by the DB.
 	///
-	virtual void bind(int col, unsigned long v) {
+	void bind(int col, unsigned long v) override {
 		do_bind(col, v);
 	}
 	///
@@ -853,7 +853,7 @@ public:
 	///
 	/// May throw bad_value_cast() if the value out of supported range by the DB.
 	///
-	virtual void bind(int col, long long v) {
+	void bind(int col, long long v) override {
 		do_bind(col, v);
 	}
 	///
@@ -865,7 +865,7 @@ public:
 	///
 	/// May throw bad_value_cast() if the value out of supported range by the DB.
 	///
-	virtual void bind(int col, unsigned long long v) {
+	void bind(int col, unsigned long long v) override {
 		do_bind(col, v);
 	}
 	///
@@ -875,7 +875,7 @@ public:
 	/// ignore if it is impossible to know whether the placeholder exists without special
 	/// support from back-end.
 	///
-	virtual void bind(int col, double v) {
+	void bind(int col, double v) override {
 		do_bind(col, v);
 	}
 	///
@@ -885,7 +885,7 @@ public:
 	/// ignore if it is impossible to know whether the placeholder exists without special
 	/// support from back-end.
 	///
-	virtual void bind(int col, long double v) {
+	void bind(int col, long double v) override {
 		do_bind(col, v);
 	}
 	///
@@ -895,7 +895,7 @@ public:
 	/// ignore if it is impossible to know whether the placeholder exists without special
 	/// support from back-end.
 	///
-	virtual void bind_null(int col) {
+	void bind_null(int col) override {
 		at(col) = param();
 	}
 	///
@@ -907,7 +907,7 @@ public:
 	///
 	/// MUST throw not_supported_by_backend() if such option is not supported by the DB engine.
 	///
-	virtual long long sequence_last(const std::string & /*sequence*/) {
+	long long sequence_last(const std::string & /*sequence*/) override {
 		return mysql_stmt_insert_id(stmt_);
 	}
 	///
@@ -915,7 +915,7 @@ public:
 	///
 	/// Should be called after exec(), otherwise behavior is undefined.
 	///
-	virtual unsigned long long affected() {
+	unsigned long long affected() override {
 		return mysql_stmt_affected_rows(stmt_);
 	}
 
@@ -932,7 +932,7 @@ public:
 	///
 	/// Return SQL Query result, MAY throw cppdb_error if the statement is not a query
 	///
-	virtual std::shared_ptr<backend::result> query() {
+	std::shared_ptr<backend::result> query() override {
 		bind_all();
 		if (mysql_stmt_execute(stmt_)) {
 			throw cppdb_myerror(stmt_);
@@ -942,7 +942,7 @@ public:
 	///
 	/// Execute a statement, MAY throw cppdb_error if the statement returns results.
 	///
-	virtual void exec() {
+	void exec() override {
 		bind_all();
 		if (mysql_stmt_execute(stmt_)) {
 			throw cppdb_myerror(stmt_);
@@ -979,7 +979,7 @@ public:
 			throw;
 		}
 	}
-	virtual ~statement() {
+	~statement() override {
 		mysql_stmt_close(stmt_);
 	}
 	void reset_data() {
@@ -988,7 +988,7 @@ public:
 		bind_.resize(0);
 		bind_.resize(params_count_, MYSQL_BIND());
 	}
-	virtual void reset() {
+	void reset() override {
 		reset_data();
 		mysql_stmt_reset(stmt_);
 	}
@@ -1157,7 +1157,7 @@ public:
 			throw cppdb_myerror(err);
 		}
 	}
-	~connection() {
+	~connection() override {
 		mysql_close(conn_);
 	}
 	// API
@@ -1172,20 +1172,20 @@ public:
 	/// Start new isolated transaction. Would not be called
 	/// withing other transaction on current connection.
 	///
-	virtual void begin() {
+	void begin() override {
 		exec("BEGIN");
 	}
 	///
 	/// Commit the transaction, you may assume that is called after begin()
 	/// was called.
 	///
-	virtual void commit() {
+	void commit() override {
 		exec("COMMIT");
 	}
 	///
 	/// Rollback the transaction. MUST never throw!!!
 	///
-	virtual void rollback() {
+	void rollback() override {
 		try {
 			exec("ROLLBACK");
 		} catch (...) {}
@@ -1194,28 +1194,28 @@ public:
 	/// Create a prepared statement \a q. May throw if preparation had failed.
 	/// Should never return null value.
 	///
-	virtual std::shared_ptr<backend::statement> prepare_statement(const std::string &q) {
+	std::shared_ptr<backend::statement> prepare_statement(const std::string &q) override {
 		return backend::make_stmt<prep::statement>(q, conn_);
 	}
-	virtual std::shared_ptr<backend::statement> create_statement(const std::string &q) {
+	std::shared_ptr<backend::statement> create_statement(const std::string &q) override {
 		return backend::make_stmt<unprep::statement>(q, conn_);
 	}
 	///
 	/// Escape a string for inclusion in SQL query. May throw not_supported_by_backend() if not supported by backend.
 	///
-	virtual std::string escape(const std::string &s) {
+	std::string escape(const std::string &s) override {
 		return escape(s.c_str(), s.c_str() + s.size());
 	}
 	///
 	/// Escape a string for inclusion in SQL query. May throw not_supported_by_backend() if not supported by backend.
 	///
-	virtual std::string escape(const char *s) {
+	std::string escape(const char *s) override {
 		return escape(s, s + strlen(s));
 	}
 	///
 	/// Escape a string for inclusion in SQL query. May throw not_supported_by_backend() if not supported by backend.
 	///
-	virtual std::string escape(const char *b, const char *e) {
+	std::string escape(const char *b, const char *e) override {
 		std::vector<char> buf(2 * (e - b) + 1);
 		size_t len = mysql_real_escape_string(conn_, &buf.front(), b, e - b);
 		std::string result;
@@ -1225,14 +1225,14 @@ public:
 	///
 	/// Get the name of the driver, for example sqlite3, odbc
 	///
-	virtual std::string driver() {
+	std::string driver() override {
 		return "mysql";
 	}
 	///
 	/// Get the name of the SQL Server, for example sqlite3, mssql, oracle, differs from driver() when
 	/// the backend supports multiple databases like odbc backend.
 	///
-	virtual std::string engine() {
+	std::string engine() override {
 		return "mysql";
 	}
 

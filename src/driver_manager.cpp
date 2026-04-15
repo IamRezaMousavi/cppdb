@@ -43,7 +43,7 @@ public:
 			throw cppdb_error("cppdb::driver failed to load driver " + name + " - no module found");
 		}
 	}
-	virtual backend::connection *open(const connection_info &ci) {
+	backend::connection *open(const connection_info &ci) override {
 		return connect_(ci);
 	}
 

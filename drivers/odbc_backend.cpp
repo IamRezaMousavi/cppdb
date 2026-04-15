@@ -354,14 +354,14 @@ public:
 	typedef std::vector<cell_type> row_type;
 	typedef std::list<row_type> rows_type;
 
-	virtual next_row has_next() {
+	next_row has_next() override {
 		rows_type::iterator p = current_;
 		if (p == rows_.end() || ++p == rows_.end())
 			return last_row_reached;
 		else
 			return next_row_exists;
 	}
-	virtual bool next() {
+	bool next() override {
 		if (started_ == false) {
 			current_ = rows_.begin();
 			started_ = true;
@@ -377,70 +377,70 @@ public:
 		v = parse_number<T>(at(col).second, ss_);
 		return true;
 	}
-	virtual bool fetch(int col, short &v) {
+	bool fetch(int col, short &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned short &v) {
+	bool fetch(int col, unsigned short &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, int &v) {
+	bool fetch(int col, int &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned &v) {
+	bool fetch(int col, unsigned &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, long &v) {
+	bool fetch(int col, long &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned long &v) {
+	bool fetch(int col, unsigned long &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, long long &v) {
+	bool fetch(int col, long long &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned long long &v) {
+	bool fetch(int col, unsigned long long &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, float &v) {
+	bool fetch(int col, float &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, double &v) {
+	bool fetch(int col, double &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, long double &v) {
+	bool fetch(int col, long double &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, std::string &v) {
+	bool fetch(int col, std::string &v) override {
 		if (at(col).first)
 			return false;
 		v = at(col).second;
 		return true;
 	}
-	virtual bool fetch(int col, std::ostream &v) {
+	bool fetch(int col, std::ostream &v) override {
 		if (at(col).first)
 			return false;
 		v << at(col).second;
 		return true;
 	}
-	virtual bool fetch(int col, std::tm &v) {
+	bool fetch(int col, std::tm &v) override {
 		if (at(col).first)
 			return false;
 		v = parse_time(at(col).second);
 		return true;
 	}
-	virtual bool is_null(int col) {
+	bool is_null(int col) override {
 		return at(col).first;
 	}
-	virtual int cols() {
+	int cols() override {
 		return cols_;
 	}
-	virtual int name_to_column(const std::string &cn) {
+	int name_to_column(const std::string &cn) override {
 		for (unsigned i = 0; i < names_.size(); i++)
 			if (names_[i] == cn)
 				return i;
 		return -1;
 	}
-	virtual std::string column_to_name(int c) {
+	std::string column_to_name(int c) override {
 		if (c < 0 || c >= int(names_.size()))
 			throw invalid_column();
 		return names_[c];
@@ -554,7 +554,7 @@ class statement : public backend::statement {
 
 public:
 	// Begin of API
-	virtual void reset() {
+	void reset() override {
 		SQLFreeStmt(stmt_, SQL_UNBIND);
 		SQLCloseCursor(stmt_);
 		params_.resize(0);
@@ -573,22 +573,22 @@ public:
 		}
 		return params_[col];
 	}
-	virtual const std::string &sql_query() {
+	const std::string &sql_query() override {
 		return query_;
 	}
-	virtual void bind(int col, const std::string &s) {
+	void bind(int col, const std::string &s) override {
 		bind(col, s.c_str(), s.c_str() + s.size());
 	}
-	virtual void bind(int col, const char *s) {
+	void bind(int col, const char *s) override {
 		bind(col, s, s + strlen(s));
 	}
-	virtual void bind(int col, const char *b, const char *e) {
+	void bind(int col, const char *b, const char *e) override {
 		param_at(col).set_text(b, e, wide_);
 	}
-	virtual void bind(int col, const std::tm &s) {
+	void bind(int col, const std::tm &s) override {
 		param_at(col).set(s);
 	}
-	virtual void bind(int col, std::istream &in) {
+	void bind(int col, std::istream &in) override {
 		std::ostringstream ss;
 		ss << in.rdbuf();
 		std::string s = ss.str();
@@ -598,31 +598,31 @@ public:
 	void do_bind_num(int col, T v) {
 		param_at(col).set(v);
 	}
-	virtual void bind(int col, int v) {
+	void bind(int col, int v) override {
 		do_bind_num(col, v);
 	}
-	virtual void bind(int col, unsigned v) {
+	void bind(int col, unsigned v) override {
 		do_bind_num(col, v);
 	}
-	virtual void bind(int col, long v) {
+	void bind(int col, long v) override {
 		do_bind_num(col, v);
 	}
-	virtual void bind(int col, unsigned long v) {
+	void bind(int col, unsigned long v) override {
 		do_bind_num(col, v);
 	}
-	virtual void bind(int col, long long v) {
+	void bind(int col, long long v) override {
 		do_bind_num(col, v);
 	}
-	virtual void bind(int col, unsigned long long v) {
+	void bind(int col, unsigned long long v) override {
 		do_bind_num(col, v);
 	}
-	virtual void bind(int col, double v) {
+	void bind(int col, double v) override {
 		do_bind_num(col, v);
 	}
-	virtual void bind(int col, long double v) {
+	void bind(int col, long double v) override {
 		do_bind_num(col, v);
 	}
-	virtual void bind_null(int col) {
+	void bind_null(int col) override {
 		param_at(col) = parameter();
 	}
 	void bind_all() {
@@ -630,7 +630,7 @@ public:
 			params_[i].bind(i + 1, stmt_, wide_);
 		}
 	}
-	virtual long long sequence_last(const std::string &sequence) {
+	long long sequence_last(const std::string &sequence) override {
 		std::shared_ptr<statement> st;
 		if (!sequence_last_.empty()) {
 			st = backend::make_stmt<statement>(sequence_last_, dbc_, wide_, false);
@@ -651,13 +651,13 @@ public:
 
 		return last_id;
 	}
-	virtual unsigned long long affected() {
+	unsigned long long affected() override {
 		SQLLEN rows = 0;
 		int r = SQLRowCount(stmt_, &rows);
 		check_error(r);
 		return rows;
 	}
-	virtual std::shared_ptr<backend::result> query() {
+	std::shared_ptr<backend::result> query() override {
 		bind_all();
 		int r = real_exec();
 		check_error(r);
@@ -793,7 +793,7 @@ public:
 		}
 		return r;
 	}
-	virtual void exec() {
+	void exec() override {
 		bind_all();
 		int r = real_exec();
 		if (r != SQL_NO_DATA)
@@ -826,7 +826,7 @@ public:
 			params_.reserve(50);
 		}
 	}
-	~statement() {
+	~statement() override {
 		SQLFreeHandle(SQL_HANDLE_STMT, stmt_);
 	}
 
@@ -907,23 +907,23 @@ public:
 		return str;
 	}
 
-	~connection() {
+	~connection() override {
 		SQLDisconnect(dbc_);
 		SQLFreeHandle(SQL_HANDLE_DBC, dbc_);
 		SQLFreeHandle(SQL_HANDLE_ENV, env_);
 	}
 
 	/// API
-	virtual void begin() {
+	void begin() override {
 		set_autocommit(false);
 	}
-	virtual void commit() {
+	void commit() override {
 		SQLRETURN r = SQLEndTran(SQL_HANDLE_DBC, dbc_, SQL_COMMIT);
 		check_odbc_error(r, dbc_, SQL_HANDLE_DBC, wide_);
 		set_autocommit(true);
 	}
 
-	virtual void rollback() {
+	void rollback() override {
 		try {
 			SQLRETURN r = SQLEndTran(SQL_HANDLE_DBC, dbc_, SQL_ROLLBACK);
 			check_odbc_error(r, dbc_, SQL_HANDLE_DBC, wide_);
@@ -955,27 +955,27 @@ public:
 		return st;
 	}
 
-	virtual std::shared_ptr<backend::statement> prepare_statement(const std::string &q) {
+	std::shared_ptr<backend::statement> prepare_statement(const std::string &q) override {
 		return real_prepare(q, true);
 	}
 
-	virtual std::shared_ptr<backend::statement> create_statement(const std::string &q) {
+	std::shared_ptr<backend::statement> create_statement(const std::string &q) override {
 		return real_prepare(q, false);
 	}
 
-	virtual std::string escape(const std::string &s) {
+	std::string escape(const std::string &s) override {
 		return escape(s.c_str(), s.c_str() + s.size());
 	}
-	virtual std::string escape(const char *s) {
+	std::string escape(const char *s) override {
 		return escape(s, s + strlen(s));
 	}
-	virtual std::string escape(const char * /*b*/, const char * /*e*/) {
+	std::string escape(const char * /*b*/, const char * /*e*/) override {
 		throw not_supported_by_backend("cppcms::odbc:: string escaping is not supported");
 	}
-	virtual std::string driver() {
+	std::string driver() override {
 		return "odbc";
 	}
-	virtual std::string engine() {
+	std::string engine() override {
 		return ci_.get("@engine", "unknown");
 	}
 

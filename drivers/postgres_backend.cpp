@@ -58,16 +58,16 @@ public:
 		: res_(res), conn_(conn), rows_(PQntuples(res)), cols_(PQnfields(res)), current_(-1), blob_(b) {
 		ss_.imbue(std::locale::classic());
 	}
-	virtual ~result() {
+	~result() override {
 		PQclear(res_);
 	}
-	virtual next_row has_next() {
+	next_row has_next() override {
 		if (current_ + 1 < rows_)
 			return next_row_exists;
 		else
 			return last_row_reached;
 	}
-	virtual bool next() {
+	bool next() override {
 		current_++;
 		if (current_ < rows_) {
 			return true;
@@ -83,46 +83,46 @@ public:
 		v = parse_number<T>(tmp, ss_);
 		return true;
 	}
-	virtual bool fetch(int col, short &v) {
+	bool fetch(int col, short &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned short &v) {
+	bool fetch(int col, unsigned short &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, int &v) {
+	bool fetch(int col, int &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned &v) {
+	bool fetch(int col, unsigned &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, long &v) {
+	bool fetch(int col, long &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned long &v) {
+	bool fetch(int col, unsigned long &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, long long &v) {
+	bool fetch(int col, long long &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, unsigned long long &v) {
+	bool fetch(int col, unsigned long long &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, float &v) {
+	bool fetch(int col, float &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, double &v) {
+	bool fetch(int col, double &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, long double &v) {
+	bool fetch(int col, long double &v) override {
 		return do_fetch(col, v);
 	}
-	virtual bool fetch(int col, std::string &v) {
+	bool fetch(int col, std::string &v) override {
 		if (do_isnull(col))
 			return false;
 		v.assign(PQgetvalue(res_, current_, col), PQgetlength(res_, current_, col));
 		return true;
 	}
-	virtual bool fetch(int col, std::ostream &v) {
+	bool fetch(int col, std::ostream &v) override {
 		if (do_isnull(col))
 			return false;
 		if (blob_ == bytea_type) {
@@ -172,22 +172,22 @@ public:
 		}
 		return true;
 	}
-	virtual bool fetch(int col, std::tm &v) {
+	bool fetch(int col, std::tm &v) override {
 		if (do_isnull(col))
 			return false;
 		v = parse_time(PQgetvalue(res_, current_, col));
 		return true;
 	}
-	virtual bool is_null(int col) {
+	bool is_null(int col) override {
 		return do_isnull(col);
 	}
-	virtual int cols() {
+	int cols() override {
 		return cols_;
 	}
-	virtual int name_to_column(const std::string &n) {
+	int name_to_column(const std::string &n) override {
 		return PQfnumber(res_, n.c_str());
 	}
-	virtual std::string column_to_name(int pos) {
+	std::string column_to_name(int pos) override {
 		const char *name = PQfname(res_, pos);
 		if (!name)
 			return std::string();
@@ -267,7 +267,7 @@ public:
 			PQclear(r);
 		}
 	}
-	virtual ~statement() {
+	~statement() override {
 		try {
 			if (res_) {
 				PQclear(res_);
@@ -283,7 +283,7 @@ public:
 			}
 		} catch (...) {}
 	}
-	virtual void reset() {
+	void reset() override {
 		if (res_) {
 			PQclear(res_);
 			res_ = 0;
@@ -297,24 +297,24 @@ public:
 		params_plengths_.swap(lengths);
 		params_set_.swap(flags);
 	}
-	virtual void bind(int col, const std::string &v) {
+	void bind(int col, const std::string &v) override {
 		bind(col, v.c_str(), v.c_str() + v.size());
 	}
-	virtual void bind(int col, const char *s) {
+	void bind(int col, const char *s) override {
 		bind(col, s, s + strlen(s));
 	}
-	virtual void bind(int col, const char *b, const char *e) {
+	void bind(int col, const char *b, const char *e) override {
 		check(col);
 		params_pvalues_[col - 1] = b;
 		params_plengths_[col - 1] = e - b;
 		params_set_[col - 1] = text_param;
 	}
-	virtual void bind(int col, const std::tm &v) {
+	void bind(int col, const std::tm &v) override {
 		check(col);
 		params_values_[col - 1] = cppdb::format_time(v);
 		params_set_[col - 1] = text_param;
 	}
-	virtual void bind(int col, std::istream &in) {
+	void bind(int col, std::istream &in) override {
 		check(col);
 		if (blob_ == bytea_type) {
 			std::ostringstream ss;
@@ -373,31 +373,31 @@ public:
 		fmt_.clear();
 	}
 
-	virtual void bind(int col, int v) {
+	void bind(int col, int v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, unsigned v) {
+	void bind(int col, unsigned v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, long v) {
+	void bind(int col, long v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, unsigned long v) {
+	void bind(int col, unsigned long v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, long long v) {
+	void bind(int col, long long v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, unsigned long long v) {
+	void bind(int col, unsigned long long v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, double v) {
+	void bind(int col, double v) override {
 		do_bind(col, v);
 	}
-	virtual void bind(int col, long double v) {
+	void bind(int col, long double v) override {
 		do_bind(col, v);
 	}
-	virtual void bind_null(int col) {
+	void bind_null(int col) override {
 		check(col);
 		params_set_[col - 1] = null_param;
 		std::string tmp;
@@ -452,7 +452,7 @@ public:
 		}
 	}
 
-	virtual std::shared_ptr<backend::result> query() {
+	std::shared_ptr<backend::result> query() override {
 		real_query();
 		switch (PQresultStatus(res_)) {
 		case PGRES_TUPLES_OK: {
@@ -467,7 +467,7 @@ public:
 			throw pqerror(res_, "query execution failed ");
 		}
 	}
-	virtual void exec() {
+	void exec() override {
 		real_query();
 		switch (PQresultStatus(res_)) {
 		case PGRES_TUPLES_OK:
@@ -479,7 +479,7 @@ public:
 			throw pqerror(res_, "statement execution failed ");
 		}
 	}
-	virtual long long sequence_last(const std::string &sequence) {
+	long long sequence_last(const std::string &sequence) override {
 		PGresult *res = 0;
 		long long rowid = 0;
 		try {
@@ -511,7 +511,7 @@ public:
 		PQclear(res);
 		return rowid;
 	}
-	virtual unsigned long long affected() {
+	unsigned long long affected() override {
 		if (res_) {
 			const char *s = PQcmdTuples(res_);
 			if (!s || !*s)
@@ -526,7 +526,7 @@ public:
 		}
 		return 0;
 	}
-	virtual const std::string &sql_query() {
+	const std::string &sql_query() override {
 		return orig_query_;
 	}
 
@@ -561,21 +561,21 @@ public:
 		}
 		PQclear(r);
 	}
-	virtual void begin() {
+	void begin() override {
 		do_simple_exec("begin");
 	}
-	virtual void commit() {
+	void commit() override {
 		do_simple_exec("commit");
 	}
-	virtual void rollback() {
+	void rollback() override {
 		try {
 			do_simple_exec("rollback");
 		} catch (...) {}
 	}
-	virtual std::shared_ptr<backend::statement> prepare_statement(const std::string &q) {
+	std::shared_ptr<backend::statement> prepare_statement(const std::string &q) override {
 		return backend::make_stmt<statement>(conn_, q, blob_, ++prepared_id_);
 	}
-	virtual std::shared_ptr<backend::statement> create_statement(const std::string &q) {
+	std::shared_ptr<backend::statement> create_statement(const std::string &q) override {
 		return backend::make_stmt<statement>(conn_, q, blob_, 0);
 	}
 	std::string do_escape(const char *b, size_t length) {
@@ -583,13 +583,13 @@ public:
 		size_t len = PQescapeStringConn(conn_, &buf.front(), b, length, 0);
 		return std::string(&buf.front(), len);
 	}
-	virtual std::string escape(const std::string &s) {
+	std::string escape(const std::string &s) override {
 		return do_escape(s.c_str(), s.size());
 	}
-	virtual std::string escape(const char *s) {
+	std::string escape(const char *s) override {
 		return do_escape(s, strlen(s));
 	}
-	virtual std::string escape(const char *b, const char *e) {
+	std::string escape(const char *b, const char *e) override {
 		return do_escape(b, e - b);
 	}
 	std::string pq_string(const connection_info &ci) {
@@ -644,13 +644,13 @@ public:
 			throw;
 		}
 	}
-	virtual ~connection() {
+	~connection() override {
 		PQfinish(conn_);
 	}
-	virtual std::string driver() {
+	std::string driver() override {
 		return "postgresql";
 	}
-	virtual std::string engine() {
+	std::string engine() override {
 		return "postgresql";
 	}
 

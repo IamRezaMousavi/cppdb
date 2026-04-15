@@ -1,0 +1,32 @@
+Checks: [
+  '-*',
+  'clang-analyzer-*',
+  'portability-*',
+  'performance-*',
+  'bugprone-*',
+  '-concurrency-*',
+  '-cert-*',
+  'cppcoreguidelines-*',
+  '-modernize-*',
+  '-misc-*',
+  '-readability-*',
+  '-bugprone-reserved-identifier',
+  '-cppcoreguidelines-avoid-c-arrays',
+  '-cppcoreguidelines-pro-bounds-array-to-pointer-decay',
+  '-bugprone-easily-swappable-parameters'
+]
+
+HeaderFileExtensions:
+  - ''
+  - h
+  - hh
+  - hpp
+  - hxx
+ImplementationFileExtensions:
+  - c
+  - cc
+  - cpp
+  - cxx
+HeaderFilterRegex: '.*'
+UseColor: true
+#CheckOptions:
