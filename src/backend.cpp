@@ -13,14 +13,8 @@ namespace cppdb {
 namespace backend {
 // result
 struct result::data {};
-result::result() {}
-result::~result() {}
 
 // statement
-struct statement::data {};
-
-statement::statement() : cache_(0) {}
-statement::~statement() {}
 void statement::cache(statements_cache *c) {
 	cache_ = c;
 }
@@ -96,7 +90,6 @@ struct statements_cache::data {
 	}
 }; // data
 
-statements_cache::statements_cache() {}
 void statements_cache::set_size(size_t n) {
 	if (n != 0 && !active()) {
 		d.reset(new data());
@@ -119,7 +112,6 @@ std::shared_ptr<statement> statements_cache::fetch(const std::string &q) {
 void statements_cache::clear() {
 	d->clear();
 }
-statements_cache::~statements_cache() {}
 
 bool statements_cache::active() {
 	return d.get() != nullptr;
@@ -132,7 +124,6 @@ bool statements_cache::active() {
 struct connection::data {
 	typedef std::list<std::shared_ptr<connection_specific_data>> conn_specific_type;
 	conn_specific_type conn_specific;
-	~data() {}
 };
 std::shared_ptr<statement> connection::prepare(const std::string &q) {
 	if (default_is_prepared_)
@@ -277,7 +268,6 @@ connection *loadable_driver::connect(const connection_info &cs) {
 }
 
 static_driver::static_driver(connect_function_type c) : connect_(c) {}
-static_driver::~static_driver() {}
 backend::connection *static_driver::open(const connection_info &ci) {
 	return connect_(ci);
 }

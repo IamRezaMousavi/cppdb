@@ -87,7 +87,7 @@ public:
 	///
 	/// Default constructor - empty info
 	///
-	connection_info() {}
+	connection_info() = default;
 	///
 	/// Create connection_info from the connection string parsing it.
 	///

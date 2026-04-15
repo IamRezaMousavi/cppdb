@@ -102,12 +102,9 @@ namespace details {
 template <typename Object>
 class functor {
 public:
-	functor(const functor &other) : functor_(other.functor_), wrapper_(other.wrapper_) {}
-	const functor &operator=(const functor &other) {
-		functor_ = other.functor_;
-		wrapper_ = other.wrapper_;
-		return *this;
-	}
+	functor(const functor &other) = default;
+	functor &operator=(const functor &other) = default;
+
 	functor(void (*func)(Object &)) {
 		functor_ = reinterpret_cast<void *>(reinterpret_cast<size_t>(func));
 		wrapper_ = &functor::call_func;
@@ -163,7 +160,7 @@ public:
 	///
 	/// Create an empty result, it is not useful except for having default constructor
 	///
-	result();
+	result() = default;
 	///
 	/// Destroys the result, note, if the result of statement is not destroyed, it would
 	/// not be returned to statements cache.
@@ -173,12 +170,12 @@ public:
 	/// Copy result, note it only keeps the reference to actual object so copy is just
 	/// copy of the reference
 	///
-	result(const result &);
+	result(const result &) = default;
 	///
 	/// Assign result, note it only keeps the reference to actual object so assignment is just
 	/// copy of the reference
 	///
-	const result &operator=(const result &);
+	result &operator=(const result &) = default;
 
 	///
 	/// Return the number of columns in the result
@@ -523,13 +520,9 @@ private:
 
 	friend class statement;
 
-	struct data;
-
-	std::unique_ptr<data> d;
-
-	bool eof_;
-	bool fetched_;
-	int current_col_;
+	bool eof_ = false;
+	bool fetched_ = false;
+	int current_col_ = 0;
 	std::shared_ptr<backend::result> res_;
 	std::shared_ptr<backend::statement> stat_;
 	std::shared_ptr<backend::connection> conn_;
@@ -546,7 +539,7 @@ public:
 	/// Default constructor, provided for convenience, access to any member function
 	/// of empty statement will cause an exception being thrown.
 	///
-	statement();
+	statement() = default;
 	///
 	/// Destructor, it releases prepared statement and if the statements cache is enabled
 	/// it returns it into the cache.
@@ -563,7 +556,7 @@ public:
 	/// of same statement represent same object and it is strongly not recommended to access the underlying
 	/// backend::statement by two different statement objects.
 	///
-	statement(const statement &);
+	statement(const statement &) = default;
 	///
 	/// Assign a statement.
 	///
@@ -571,7 +564,7 @@ public:
 	/// of same statement represent same object and it is strongly not recommended to access the underlying
 	/// backend::statement by two different statement objects.
 	///
-	const statement &operator=(const statement &);
+	statement &operator=(const statement &) = default;
 
 	///
 	/// Reset the statement - remove all bindings and return it into initial state so query() or exec()
@@ -868,11 +861,9 @@ private:
 
 	friend class session;
 
-	int placeholder_;
+	int placeholder_ = 1;
 	std::shared_ptr<backend::statement> stat_;
 	std::shared_ptr<backend::connection> conn_;
-	struct data;
-	std::unique_ptr<data> d;
 };
 
 ///
@@ -930,17 +921,17 @@ public:
 	///
 	/// Create an empty session object, it should not be used until it is opened with calling open() function.
 	///
-	session();
+	session() = default;
 	///
 	/// Copy a session object, note - it copies only the reference to the underlying connection, so you should
 	/// be very careful when you do it.
 	///
-	session(const session &);
+	session(const session &) = default;
 	///
 	/// Assign a session object, note - it copies only the reference to the underlying connection, so you should
 	/// be very careful when you do it.
 	///
-	const session &operator=(const session &);
+	session &operator=(const session &) = default;
 	///
 	/// Destroys the session object, if connection pool is used it returns the object to connection pool.
 	///
@@ -1180,8 +1171,6 @@ public:
 	}
 
 private:
-	struct data;
-	std::unique_ptr<data> d;
 	std::shared_ptr<backend::connection> conn_;
 };
 

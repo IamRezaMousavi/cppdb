@@ -10,7 +10,7 @@ The original [cppdb](https://sourceforge.net/projects/cppcms/files/) library, wh
 
 Our primary goals with this fork are:
 
-* **Modernize the codebase:** We fully utilize C++20 features and have removed outdated code and deprecated methods, replacing them with standard, modern C++ equivalents.
+* **Modernize the codebase:** We fully utilize C++11 features and have removed outdated code and deprecated methods, replacing them with standard, modern C++ equivalents.
 * **Enhance Performance and Memory Management:** We employ modern techniques, including the use of Smart Pointers, for more efficient memory handling, a reduced risk of memory leaks, and overall improved performance.
 * **Simplify and Improve Readability:** The API has been refined to be cleaner, more straightforward, and easier to understand and use, making development faster and less error-prone.
 * **Streamline Portability and Dependencies:** We’ve simplified the build process using CMake and minimized dependencies to standard C++ libraries and essential database connectors, ensuring easier compilation across different platforms.

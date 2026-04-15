@@ -38,7 +38,7 @@ private:
 
 class timer {
 public:
-	timer() {}
+	timer() = default;
 	void start() {
 		gettimeofday(&start_, 0);
 	}

@@ -178,12 +178,11 @@ public:
 	///
 	virtual std::string column_to_name(int) = 0;
 
-	result();
-	virtual ~result();
+	result() = default;
+	virtual ~result() = default;
 
 private:
 	struct data;
-	std::unique_ptr<data> d;
 };
 
 class statements_cache;
@@ -361,13 +360,12 @@ public:
 	static void dispose(statement *selfp);
 
 	void cache(statements_cache *c);
-	statement();
-	virtual ~statement();
+
+	statement() = default;
+	virtual ~statement() = default;
 	/// \endcond
 private:
-	struct data;
-	std::unique_ptr<data> d;
-	statements_cache *cache_;
+	statements_cache *cache_ = nullptr;
 };
 
 template <typename T>
@@ -390,13 +388,14 @@ public:
 	statements_cache(const statements_cache &) = delete;
 	void operator=(const statements_cache &) = delete;
 
-	statements_cache();
+	statements_cache() = default;
+	~statements_cache() = default;
+
 	bool active();
 	void set_size(size_t n);
 	void put(statement *p_in);
 	void clear();
 	std::shared_ptr<statement> fetch(const std::string &q);
-	~statements_cache();
 
 private:
 	struct data;
@@ -417,8 +416,8 @@ public:
 	driver(const driver &) = delete;
 	void operator=(const driver &) = delete;
 
-	driver() {}
-	virtual ~driver() {}
+	driver() = default;
+	virtual ~driver() = default;
 	///
 	/// Create a connection object - should be implemented by driver
 	///
@@ -438,8 +437,8 @@ public:
 	loadable_driver(const loadable_driver &) = delete;
 	void operator=(const loadable_driver &) = delete;
 
-	loadable_driver() {}
-	virtual ~loadable_driver() {}
+	loadable_driver() = default;
+	virtual ~loadable_driver() = default;
 
 	///
 	/// Creates a new connection object and keeps track of them for handing (in_use) correctly
@@ -468,7 +467,7 @@ public:
 	/// Create a new driver that creates connection using function \a c
 	///
 	static_driver(connect_function_type c);
-	~static_driver();
+	~static_driver() = default;
 	///
 	/// Create new connection - basically calls the function to create the object
 	///

@@ -7,11 +7,10 @@
 #include <cppdb/pool.hpp>
 
 namespace cppdb {
-struct result::data {};
 
 class throw_guard {
 public:
-	throw_guard(const std::shared_ptr<backend::connection> &conn) : conn_(std::move(conn)) {}
+	throw_guard(const std::shared_ptr<backend::connection> conn) : conn_(std::move(conn)) {}
 	void done() {
 		conn_.reset();
 	}
@@ -25,32 +24,9 @@ private:
 	std::shared_ptr<backend::connection> conn_;
 };
 
-result::result() : eof_(false), fetched_(false), current_col_(0) {}
 result::result(std::shared_ptr<backend::result> res, std::shared_ptr<backend::statement> stat,
 			   std::shared_ptr<backend::connection> conn)
-	: eof_(false),
-	  fetched_(false),
-	  current_col_(0),
-	  res_(std::move(res)),
-	  stat_(std::move(stat)),
-	  conn_(std::move(conn)) {}
-result::result(const result &other)
-	: eof_(other.eof_),
-	  fetched_(other.fetched_),
-	  current_col_(other.current_col_),
-	  res_(other.res_),
-	  stat_(other.stat_),
-	  conn_(other.conn_) {}
-
-const result &result::operator=(const result &other) {
-	eof_ = other.eof_;
-	fetched_ = other.fetched_;
-	current_col_ = other.current_col_;
-	res_ = other.res_;
-	stat_ = other.stat_;
-	conn_ = other.conn_;
-	return *this;
-}
+	: res_(std::move(res)), stat_(std::move(stat)), conn_(std::move(conn)) {}
 
 result::~result() {
 	clear();
@@ -250,25 +226,13 @@ bool result::fetch(std::ostream &v) {
 	return res_->fetch(current_col_++, v);
 }
 
-struct statement::data {};
-
-statement::statement() : placeholder_(1) {}
 statement::~statement() {
 	stat_.reset();
 	conn_.reset();
 }
 
-statement::statement(const statement &other)
-	: placeholder_(other.placeholder_), stat_(other.stat_), conn_(other.conn_) {}
-const statement &statement::operator=(const statement &other) {
-	placeholder_ = other.placeholder_;
-	stat_ = other.stat_;
-	conn_ = other.conn_;
-	return *this;
-}
-
 statement::statement(std::shared_ptr<backend::statement> stat, std::shared_ptr<backend::connection> conn)
-	: placeholder_(1), stat_(stat), conn_(conn) {}
+	: stat_(stat), conn_(conn) {}
 
 bool statement::empty() const {
 	return !stat_;
@@ -453,14 +417,6 @@ void statement::exec() {
 	stat_->exec();
 }
 
-struct session::data {};
-
-session::session() {}
-session::session(const session &other) : conn_(other.conn_) {}
-const session &session::operator=(const session &other) {
-	conn_ = other.conn_;
-	return *this;
-}
 session::session(std::shared_ptr<backend::connection> conn) : conn_(conn) {}
 session::session(std::shared_ptr<backend::connection> conn, const once_functor &f) : conn_(conn) {
 	once(f);

@@ -373,7 +373,7 @@ public:
 		}
 		reset_params();
 	}
-	virtual ~statement() {}
+	virtual ~statement() = default;
 	virtual void reset() {}
 
 private:

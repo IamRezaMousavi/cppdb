@@ -41,7 +41,7 @@ std::shared_ptr<shared_object> shared_object::open(const std::string &name) {
 	}
 	try {
 		dl.reset(new shared_object(name, h));
-		h = 0;
+		h = nullptr;
 		return dl;
 	} catch (...) {
 		if (h) {
