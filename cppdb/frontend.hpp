@@ -1205,7 +1205,7 @@ public:
 private:
 	struct data;
 	session *s_;
-	bool commited_;
+	bool commited_ = false;
 	std::unique_ptr<data> d;
 };
 

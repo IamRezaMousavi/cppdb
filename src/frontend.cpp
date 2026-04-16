@@ -10,7 +10,7 @@ namespace cppdb {
 
 class throw_guard {
 public:
-	throw_guard(const std::shared_ptr<backend::connection> conn) : conn_(std::move(conn)) {}
+	throw_guard(const std::shared_ptr<backend::connection> conn) : conn_(conn) {}
 	void done() {
 		conn_.reset();
 	}
@@ -533,7 +533,7 @@ void session::once(const once_functor &f) {
 
 struct transaction::data {};
 
-transaction::transaction(session &s) : s_(&s), commited_(false) {
+transaction::transaction(session &s) : s_(&s) {
 	s_->begin();
 }
 

@@ -22,7 +22,7 @@ std::shared_ptr<pool> pool::create(const std::string &cs) {
 	return p;
 }
 
-pool::pool(const connection_info &ci) : limit_(0), life_time_(0), ci_(ci), size_(0) {
+pool::pool(const connection_info &ci) : ci_(ci) {
 	limit_ = ci_.get("@pool_size", 16);
 	life_time_ = ci_.get("@pool_max_idle", 600);
 	CPPDB_LOG_INFO << "pool: create with limit " << limit_;

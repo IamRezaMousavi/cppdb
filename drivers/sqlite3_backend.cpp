@@ -21,11 +21,9 @@ namespace sqlite3_backend {
 
 class result : public backend::result {
 public:
-	result(sqlite3_stmt *st, sqlite3 *conn) : st_(st), conn_(conn), column_names_prepared_(false), cols_(-1) {
-		cols_ = sqlite3_column_count(st_);
-	}
+	result(sqlite3_stmt *st, sqlite3 *conn) : st_(st), conn_(conn), cols_(sqlite3_column_count(st_)) {}
 	~result() override {
-		st_ = 0;
+		st_ = nullptr;
 	}
 	next_row has_next() override {
 		return next_row_unknown;
@@ -168,8 +166,8 @@ private:
 	sqlite3_stmt *st_;
 	sqlite3 *conn_;
 	std::map<std::string, int> column_names_;
-	bool column_names_prepared_;
-	int cols_;
+	bool column_names_prepared_ = false;
+	int cols_ = -1;
 };
 
 class statement : public backend::statement {
@@ -216,7 +214,7 @@ public:
 	template <typename IntType>
 	void do_bind(int col, IntType value) {
 		reset_stat();
-		int r;
+		int r = 0;
 		if (sizeof(value) > sizeof(int) || (long long)(value) > std::numeric_limits<int>::max())
 			r = sqlite3_bind_int64(st_, col, static_cast<sqlite3_int64>(value));
 		else
@@ -275,7 +273,7 @@ public:
 	const std::string &sql_query() override {
 		return sql_query_;
 	}
-	statement(const std::string &query, sqlite3 *conn) : st_(0), conn_(conn), reset_(true), sql_query_(query) {
+	statement(const std::string &query, sqlite3 *conn) : conn_(conn), sql_query_(query) {
 		if (sqlite3_prepare_v2(conn_, query.c_str(), query.size(), &st_, 0) != SQLITE_OK)
 			throw cppdb_error(sqlite3_errmsg(conn_));
 	}
@@ -292,14 +290,14 @@ private:
 			throw cppdb_error(sqlite3_errmsg(conn_));
 		}
 	}
-	sqlite3_stmt *st_;
+	sqlite3_stmt *st_ = nullptr;
 	sqlite3 *conn_;
-	bool reset_;
+	bool reset_ = true;
 	std::string sql_query_;
 };
 class connection : public backend::connection {
 public:
-	connection(const connection_info &ci) : backend::connection(ci), conn_(0) {
+	connection(const connection_info &ci) : backend::connection(ci) {
 		std::string dbname = ci.get("db");
 		if (dbname.empty()) {
 			throw cppdb_error("sqlite3:database file (db propery) not specified");
@@ -393,7 +391,7 @@ private:
 		}
 	}
 
-	sqlite3 *conn_;
+	sqlite3 *conn_ = nullptr;
 };
 
 } // namespace sqlite3_backend

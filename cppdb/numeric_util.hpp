@@ -20,7 +20,7 @@ T parse_number(const std::string &s, std::istringstream &ss) {
 	ss.clear();
 	ss.str(s);
 	if (s.find_first_of(".eEdD") != std::string::npos) {
-		long double v;
+		long double v = 0.0L;
 		ss >> v;
 		if (ss.fail() || !std::ws(ss).eof())
 			throw bad_value_cast();

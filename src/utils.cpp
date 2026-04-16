@@ -23,9 +23,8 @@ std::tm parse_time(const std::string &v) {
 }
 std::tm parse_time(const char *v) {
 	std::tm t = std::tm();
-	int n;
 	double sec = 0;
-	n = sscanf(v, "%d-%d-%d %d:%d:%lf", &t.tm_year, &t.tm_mon, &t.tm_mday, &t.tm_hour, &t.tm_min, &sec);
+	int n = sscanf(v, "%d-%d-%d %d:%d:%lf", &t.tm_year, &t.tm_mon, &t.tm_mday, &t.tm_hour, &t.tm_min, &sec);
 	if (n != 3 && n != 6) {
 		throw bad_value_cast();
 	}

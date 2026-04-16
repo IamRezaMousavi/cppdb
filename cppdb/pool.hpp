@@ -69,21 +69,20 @@ private:
 	std::unique_ptr<data> d;
 
 	struct entry {
-		entry() : last_used(0) {}
 		std::shared_ptr<backend::connection> conn;
-		std::time_t last_used;
+		std::time_t last_used = 0L;
 	};
 
 	typedef std::list<entry> pool_type;
 	// non-mutable members
 
-	size_t limit_;
-	int life_time_;
+	size_t limit_ = 0;
+	int life_time_ = 0;
 	connection_info ci_;
 
 	// mutex protected begin
 	std::mutex lock_;
-	size_t size_;
+	size_t size_ = 0;
 	pool_type pool_;
 	// mutex protected end
 };

@@ -294,13 +294,13 @@ void check_odbc_errorW(SQLRETURN error, SQLHANDLE h, SQLSMALLINT type) {
 	if (SQL_SUCCEEDED(error))
 		return;
 	std::basic_string<SQLWCHAR> error_message;
-	int rec = 1, r;
+	int rec = 1;
 	for (;;) {
 		SQLWCHAR msg[SQL_MAX_MESSAGE_LENGTH + 2] = {0};
 		SQLWCHAR stat[SQL_SQLSTATE_SIZE + 1] = {0};
 		SQLINTEGER err;
 		SQLSMALLINT len;
-		r = SQLGetDiagRecW(type, h, rec, stat, &err, msg, sizeof(msg) / sizeof(SQLWCHAR), &len);
+		SQLRETURN r = SQLGetDiagRecW(type, h, rec, stat, &err, msg, sizeof(msg) / sizeof(SQLWCHAR), &len);
 		rec++;
 		if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO) {
 			if (!error_message.empty()) {
@@ -323,13 +323,13 @@ void check_odbc_errorA(SQLRETURN error, SQLHANDLE h, SQLSMALLINT type) {
 	if (SQL_SUCCEEDED(error))
 		return;
 	std::string error_message;
-	int rec = 1, r;
+	int rec = 1;
 	for (;;) {
 		SQLCHAR msg[SQL_MAX_MESSAGE_LENGTH + 2] = {0};
 		SQLCHAR stat[SQL_SQLSTATE_SIZE + 1] = {0};
 		SQLINTEGER err;
 		SQLSMALLINT len;
-		r = SQLGetDiagRecA(type, h, rec, stat, &err, msg, sizeof(msg), &len);
+		SQLRETURN r = SQLGetDiagRecA(type, h, rec, stat, &err, msg, sizeof(msg), &len);
 		rec++;
 		if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO) {
 			if (!error_message.empty())
@@ -435,7 +435,7 @@ public:
 		return cols_;
 	}
 	int name_to_column(const std::string &cn) override {
-		for (unsigned i = 0; i < names_.size(); i++)
+		for (size_t i = 0; i < names_.size(); i++)
 			if (names_[i] == cn)
 				return i;
 		return -1;
@@ -449,7 +449,6 @@ public:
 	result(rows_type &rows, std::vector<std::string> &names, int cols) : cols_(cols) {
 		names_.swap(names);
 		rows_.swap(rows);
-		started_ = false;
 		current_ = rows_.end();
 		ss_.imbue(std::locale::classic());
 	}
@@ -461,7 +460,7 @@ public:
 
 private:
 	int cols_;
-	bool started_;
+	bool started_ = false;
 	std::vector<std::string> names_;
 	rows_type::iterator current_;
 	rows_type rows_;
@@ -474,7 +473,6 @@ class connection;
 
 class statement : public backend::statement {
 	struct parameter {
-		parameter() : null(true), ctype(SQL_C_CHAR), sqltype(SQL_C_NUMERIC) {}
 		void set_binary(const char *b, const char *e) {
 			value.assign(b, e - b);
 			null = false;
@@ -519,7 +517,7 @@ class statement : public backend::statement {
 				sqltype = SQL_DOUBLE;
 		}
 		void bind(int col, SQLHSTMT stmt, bool wide) {
-			int r;
+			SQLRETURN r = 0;
 			if (null) {
 				lenval = SQL_NULL_DATA;
 				r = SQLBindParameter(stmt, col, SQL_PARAM_INPUT, SQL_C_CHAR,
@@ -546,10 +544,10 @@ class statement : public backend::statement {
 		}
 
 		std::string value;
-		bool null;
-		SQLSMALLINT ctype;
-		SQLSMALLINT sqltype;
-		SQLLEN lenval;
+		bool null = true;
+		SQLSMALLINT ctype = SQL_C_CHAR;
+		SQLSMALLINT sqltype = SQL_C_NUMERIC;
+		SQLLEN lenval = 0;
 	};
 
 public:
@@ -644,7 +642,7 @@ public:
 				"or @engine is one of mysql, sqlite3, postgresql, mssql");
 		}
 		auto res = st->query();
-		long long last_id;
+		long long last_id = 0LL;
 		if (!res->next() || res->cols() != 1 || !res->fetch(0, last_id)) {
 			throw cppdb_error("cppdb::odbc::sequence_last failed to fetch last value");
 		}
@@ -653,13 +651,13 @@ public:
 	}
 	unsigned long long affected() override {
 		SQLLEN rows = 0;
-		int r = SQLRowCount(stmt_, &rows);
+		SQLRETURN r = SQLRowCount(stmt_, &rows);
 		check_error(r);
 		return rows;
 	}
 	std::shared_ptr<backend::result> query() override {
 		bind_all();
-		int r = real_exec();
+		SQLRETURN r = real_exec();
 		check_error(r);
 		result::rows_type rows;
 		result::row_type row;
@@ -720,7 +718,7 @@ public:
 				int type = types[col];
 				if (type == SQL_C_DEFAULT) {
 					char buf[64];
-					int r = SQLGetData(stmt_, col + 1, SQL_C_CHAR, buf, sizeof(buf), &len);
+					SQLRETURN r = SQLGetData(stmt_, col + 1, SQL_C_CHAR, buf, sizeof(buf), &len);
 					check_error(r);
 					if (len == SQL_NULL_DATA) {
 						is_null = true;
@@ -731,7 +729,7 @@ public:
 					}
 				} else {
 					char buf[1024];
-					size_t real_len;
+					size_t real_len = 0;
 					if (type == SQL_C_CHAR) {
 						real_len = sizeof(buf) - 1;
 					} else if (type == SQL_C_BINARY) {
@@ -781,8 +779,8 @@ public:
 		return std::make_shared<result>(rows, names, cols);
 	}
 
-	int real_exec() {
-		int r = 0;
+	SQLRETURN real_exec() {
+		SQLRETURN r = 0;
 		if (prepared_) {
 			r = SQLExecute(stmt_);
 		} else {
@@ -795,14 +793,14 @@ public:
 	}
 	void exec() override {
 		bind_all();
-		int r = real_exec();
+		SQLRETURN r = real_exec();
 		if (r != SQL_NO_DATA)
 			check_error(r);
 	}
 	// End of API
 
 	statement(const std::string &q, SQLHDBC dbc, bool wide, bool prepared)
-		: dbc_(dbc), wide_(wide), query_(q), params_no_(-1), prepared_(prepared) {
+		: dbc_(dbc), wide_(wide), query_(q), prepared_(prepared) {
 		SQLRETURN r = SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt_);
 		check_odbc_error(r, dbc, SQL_HANDLE_DBC, wide_);
 		if (prepared_) {
@@ -831,7 +829,7 @@ public:
 	}
 
 private:
-	void check_error(int code) {
+	void check_error(SQLRETURN code) {
 		check_odbc_error(code, stmt_, SQL_HANDLE_STMT, wide_);
 	}
 
@@ -840,7 +838,7 @@ private:
 	bool wide_;
 	std::string query_;
 	std::vector<parameter> params_;
-	int params_no_;
+	int params_no_ = -1;
 
 	friend class connection;
 	std::string sequence_last_;
@@ -894,9 +892,8 @@ public:
 	}
 
 	std::string conn_str(const connection_info &ci) {
-		std::map<std::string, std::string>::const_iterator p;
 		std::string str;
-		for (p = ci.properties.begin(); p != ci.properties.end(); p++) {
+		for (auto p = ci.properties.begin(); p != ci.properties.end(); p++) {
 			if (p->first.empty() || p->first[0] == '@')
 				continue;
 			str += p->first;

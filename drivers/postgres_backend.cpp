@@ -55,7 +55,7 @@ public:
 class result : public backend::result {
 public:
 	result(PGresult *res, PGconn *conn, blob_type b)
-		: res_(res), conn_(conn), rows_(PQntuples(res)), cols_(PQnfields(res)), current_(-1), blob_(b) {
+		: res_(res), conn_(conn), rows_(PQntuples(res)), cols_(PQnfields(res)), blob_(b) {
 		ss_.imbue(std::locale::classic());
 	}
 	~result() override {
@@ -207,7 +207,7 @@ private:
 	PGconn *conn_;
 	int rows_;
 	int cols_;
-	int current_;
+	int current_ = -1;
 	blob_type blob_;
 	std::istringstream ss_;
 };
@@ -221,7 +221,7 @@ public:
 	} param_type;
 
 	statement(PGconn *conn, const std::string &src_query, blob_type b, unsigned long long prepared_id)
-		: res_(0), conn_(conn), orig_query_(src_query), params_(0), blob_(b) {
+		: conn_(conn), orig_query_(src_query), blob_(b) {
 		fmt_.imbue(std::locale::classic());
 
 		query_.reserve(src_query.size());
@@ -535,12 +535,12 @@ private:
 		if (col < 1 || col > int(params_))
 			throw invalid_placeholder();
 	}
-	PGresult *res_;
+	PGresult *res_ = nullptr;
 	PGconn *conn_;
 
 	std::string query_;
 	std::string orig_query_;
-	unsigned params_;
+	unsigned params_ = 0;
 	std::vector<std::string> params_values_;
 	std::vector<const char *> params_pvalues_;
 	std::vector<size_t> params_plengths_;
@@ -618,7 +618,7 @@ public:
 		}
 		return res;
 	}
-	connection(const connection_info &ci) : backend::connection(ci), conn_(0), prepared_id_(0) {
+	connection(const connection_info &ci) : backend::connection(ci) {
 		std::string pq = pq_string(ci);
 		std::string blob = ci.get("@blob", "lo");
 
@@ -655,8 +655,8 @@ public:
 	}
 
 private:
-	PGconn *conn_;
-	unsigned long long prepared_id_;
+	PGconn *conn_ = nullptr;
+	unsigned long long prepared_id_ = 0;
 	blob_type blob_;
 };
 

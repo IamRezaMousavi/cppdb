@@ -33,8 +33,6 @@ void statement::dispose(statement *p) {
 // statements cache//////////////
 
 struct statements_cache::data {
-	data() : size(0), max_size(0) {}
-
 	struct entry;
 	typedef std::map<std::string, entry> statements_type;
 	typedef std::list<statements_type::iterator> lru_type;
@@ -45,10 +43,10 @@ struct statements_cache::data {
 
 	statements_type statements;
 	lru_type lru;
-	size_t size;
-	size_t max_size;
+	size_t size = 0;
+	size_t max_size = 0;
 
-	void insert(std::shared_ptr<statement> st) {
+	void insert(const std::shared_ptr<statement> st) {
 		statements_type::iterator p;
 		if ((p = statements.find(st->sql_query())) != statements.end()) {
 			p->second.stat = st;
@@ -199,7 +197,8 @@ std::shared_ptr<connection_specific_data> connection::connection_specific_releas
 	}
 	return nullptr;
 }
-void connection::connection_specific_reset(const std::type_info &type, std::shared_ptr<connection_specific_data> ptr) {
+void connection::connection_specific_reset(const std::type_info &type,
+										   const std::shared_ptr<connection_specific_data> ptr) {
 	if (ptr && typeid(*ptr) != type) {
 		throw cppdb_error(std::string("cppdb::connection_specific::Inconsistent pointer type") + typeid(*ptr).name()
 						  + " and std::type_info reference:" + type.name());
@@ -252,9 +251,9 @@ void connection::dispose(connection *c) {
 		c->clear_cache();
 		// Make sure that driver would not be
 		// destoryed destructor of connection exits
-		std::shared_ptr<loadable_driver> driver = c->driver_;
+		// std::shared_ptr<loadable_driver> driver = c->driver_;
 		delete c;
-		driver.reset();
+		// driver.reset();
 	}
 }
 

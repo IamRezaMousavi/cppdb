@@ -151,7 +151,7 @@ std::shared_ptr<backend::driver> driver_manager::load_driver(connection_info con
 	return drv;
 }
 
-void driver_manager::install_driver(const std::string &name, std::shared_ptr<backend::driver> drv) {
+void driver_manager::install_driver(const std::string &name, const std::shared_ptr<backend::driver> drv) {
 	if (!drv) {
 		throw cppdb_error("cppdb::driver_manager::install_driver: Can't install empty driver");
 	}
@@ -159,7 +159,7 @@ void driver_manager::install_driver(const std::string &name, std::shared_ptr<bac
 	drivers_[name] = drv;
 }
 
-driver_manager::driver_manager() : no_default_directory_(false) {}
+driver_manager::driver_manager() {}
 
 void driver_manager::add_search_path(const std::string &p) {
 	std::lock_guard<std::mutex> lock(lock_);

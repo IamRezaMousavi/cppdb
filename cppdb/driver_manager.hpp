@@ -28,7 +28,7 @@ public:
 	///
 	/// Install new driver \a drv named \a name to the manager.
 	///
-	void install_driver(const std::string &name, std::shared_ptr<backend::driver> drv);
+	void install_driver(const std::string &name, const std::shared_ptr<backend::driver> drv);
 	///
 	/// Unload all drivers that have no more open connections.
 	///
@@ -62,7 +62,7 @@ private:
 
 	typedef std::map<std::string, std::shared_ptr<backend::driver> > drivers_type;
 	std::vector<std::string> search_paths_;
-	bool no_default_directory_;
+	bool no_default_directory_ = false;
 	drivers_type drivers_;
 	std::mutex lock_;
 };

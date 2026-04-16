@@ -5,7 +5,7 @@
 
 int main() {
 	try {
-		cppdb::session sql("sqlite3:db=db.db");
+		cppdb::session sql("sqlite3:db=/tmp/db.db"); // or "sqlite3:db=db.db"
 
 		sql << "DROP TABLE IF EXISTS test" << cppdb::exec;
 

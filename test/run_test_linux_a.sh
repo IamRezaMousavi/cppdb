@@ -27,13 +27,13 @@ rm -f "$ALL_FILE" "$FAIL_FILE" "$REPORT_FILE"
 #	'odbc:DSN=MSSQL;UID=root;PWD=rootroot;@engine=mssql;@utf=wide' \
 
 for STR in \
-	'sqlite3:db=test.db' \
+	'sqlite3:db=/tmp/test.db' \
 	'mysql:database=test1;user=test1;password=test1' \
-	# 'postgresql:dbname=test' \
-	# 'postgresql:dbname=test;@blob=bytea' \
-	# 'odbc:Driver=MySQL;UID=root;PWD=root;Database=test;@engine=mysql' \
-	# 'odbc:Driver=PostgreSQL ANSI;Database=test;@engine=postgresql' \
+	'postgresql:dbname=test1;user=test1;password=test1;@blob=bytea' \
+	# 'postgresql:dbname=test1;user=test1;password=test1' \
+	# 'odbc:Driver=MySQL;UID=test1;PWD=test1;Database=test1;@engine=mysql' \
 	# 'odbc:Driver=Sqlite3;Database=/tmp/test.db;@engine=sqlite3' \
+	# 'odbc:Driver=PostgreSQL ANSI;Database=test;@engine=postgresql' \
 
 do
 	for SUFFIX in '' ';@use_prepared=off' ';@pool_size=5' ';@use_prepared=off;@pool_size=5'

@@ -88,7 +88,7 @@ public:
 
 	template <typename T>
 	bool do_fetch(int col, T &v) {
-		size_t len;
+		size_t len = 0;
 		const char *s = at(col, len);
 		if (!s)
 			return false;
@@ -132,7 +132,7 @@ public:
 	}
 	///
 	bool fetch(int col, std::string &v) override {
-		size_t len;
+		size_t len = 0;
 		const char *s = at(col, len);
 		if (!s)
 			return false;
@@ -140,7 +140,7 @@ public:
 		return true;
 	}
 	bool fetch(int col, std::ostream &v) override {
-		size_t len;
+		size_t len = 0;
 		const char *s = at(col, len);
 		if (!s)
 			return false;
@@ -155,7 +155,7 @@ public:
 	/// to date-time it should throw bad_value_cast()
 	///
 	bool fetch(int col, std::tm &v) override {
-		size_t len;
+		size_t len = 0;
 		const char *s = at(col, len);
 		if (!s)
 			return false;
@@ -201,7 +201,7 @@ public:
 
 	// End of API
 
-	result(MYSQL *conn) : res_(0), cols_(0), current_row_(0), row_(0) {
+	result(MYSQL *conn) {
 		fmt_.imbue(std::locale::classic());
 		res_ = mysql_store_result(conn);
 		if (!res_) {
@@ -219,10 +219,10 @@ public:
 
 private:
 	std::istringstream fmt_;
-	MYSQL_RES *res_;
-	int cols_;
-	unsigned current_row_;
-	MYSQL_ROW row_;
+	MYSQL_RES *res_ = nullptr;
+	int cols_ = 0;
+	unsigned current_row_ = 0;
+	MYSQL_ROW row_ = nullptr;
 };
 
 class statement : public backend::statement {
@@ -356,7 +356,7 @@ public:
 		params_.resize(params_no_, "NULL");
 	}
 
-	statement(const std::string &q, MYSQL *conn) : query_(q), conn_(conn), params_no_(0) {
+	statement(const std::string &q, MYSQL *conn) : query_(q), conn_(conn) {
 		fmt_.imbue(std::locale::classic());
 		bool inside_text = false;
 		for (size_t i = 0; i < query_.size(); i++) {
@@ -383,7 +383,7 @@ private:
 
 	std::string query_;
 	MYSQL *conn_;
-	int params_no_;
+	int params_no_ = 0;
 };
 } // namespace unprep
 
@@ -391,15 +391,15 @@ namespace prep {
 
 class result : public backend::result {
 	struct bind_data {
-		bind_data() : ptr(0), length(0), is_null(0), error(0) {
+		bind_data() {
 			memset(&buf, 0, sizeof(buf));
 		}
 		char buf[128];
 		std::vector<char> vbuf;
-		char *ptr;
-		unsigned long length;
-		my_bool is_null;
-		my_bool error;
+		char *ptr = nullptr;
+		unsigned long length = 0;
+		my_bool is_null = 0;
+		my_bool error = 0;
 	};
 
 public:
@@ -648,7 +648,7 @@ public:
 
 	// End of API
 
-	result(MYSQL_STMT *stmt) : stmt_(stmt), current_row_(0), meta_(0) {
+	result(MYSQL_STMT *stmt) : stmt_(stmt) {
 		fmt_.imbue(std::locale::classic());
 		cols_ = mysql_stmt_field_count(stmt_);
 		if (mysql_stmt_store_result(stmt_)) {
@@ -682,20 +682,20 @@ private:
 	std::istringstream fmt_;
 	int cols_;
 	MYSQL_STMT *stmt_;
-	unsigned current_row_;
-	MYSQL_RES *meta_;
+	unsigned current_row_ = 0;
+	MYSQL_RES *meta_ = nullptr;
 	std::vector<MYSQL_BIND> bind_;
 	std::vector<bind_data> bind_data_;
 };
 
 class statement : public backend::statement {
 	struct param {
-		my_bool is_null;
-		bool is_blob;
-		unsigned long length;
+		my_bool is_null = 1;
+		bool is_blob = false;
+		unsigned long length = 0;
 		std::string value;
-		void *buffer;
-		param() : is_null(1), is_blob(false), length(0), buffer(0) {}
+		void *buffer = nullptr;
+
 		void set(const char *b, const char *e, bool blob = false) {
 			length = e - b;
 			buffer = const_cast<char *>(b);
@@ -960,7 +960,7 @@ public:
 
 	// Caching support
 
-	statement(const std::string &q, MYSQL *conn) : query_(q), stmt_(0), params_count_(0) {
+	statement(const std::string &q, MYSQL *conn) : query_(q) {
 		fmt_.imbue(std::locale::classic());
 
 		stmt_ = mysql_stmt_init(conn);
@@ -1004,8 +1004,8 @@ private:
 	std::vector<param> params_;
 	std::vector<MYSQL_BIND> bind_;
 	std::string query_;
-	MYSQL_STMT *stmt_;
-	int params_count_;
+	MYSQL_STMT *stmt_ = nullptr;
+	int params_count_ = 0;
 };
 
 } // namespace prep
@@ -1014,7 +1014,7 @@ class connection;
 
 class connection : public backend::connection {
 public:
-	connection(const connection_info &ci) : backend::connection(ci), conn_(0) {
+	connection(const connection_info &ci) : backend::connection(ci) {
 		conn_ = mysql_init(0);
 		if (!conn_) {
 			throw cppdb_error("cppdb::mysql failed to create connection");
@@ -1250,7 +1250,7 @@ private:
 		}
 	}
 	connection_info ci_;
-	MYSQL *conn_;
+	MYSQL *conn_ = nullptr;
 };
 
 } // namespace mysql_backend
