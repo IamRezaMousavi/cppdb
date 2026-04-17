@@ -97,6 +97,7 @@ void statements_cache::set_size(size_t n) {
 void statements_cache::put(statement *p_in) {
 	if (!active()) {
 		delete p_in;
+		p_in = nullptr;
 	}
 	std::shared_ptr<statement> p = make_stmt<statement>(p_in);
 	p->reset();

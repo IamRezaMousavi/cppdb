@@ -12,14 +12,13 @@
 #include <memory>
 #include <string>
 #include <typeinfo>
+#include <functional>
 
 ///
 /// The namespace of all data related to the cppdb api
 ///
 
 namespace cppdb {
-
-class session;
 
 ///
 /// Get CppDB Version String. It consists of "A.B.C", where A
@@ -96,57 +95,6 @@ template <typename T>
 tags::use_tag<T> use(T value, null_tag_type tag) {
 	return tags::use_tag<T>(value, tag);
 }
-
-/// \cond INTERNAL
-namespace details {
-template <typename Object>
-class functor {
-public:
-	functor(const functor &other) = default;
-	functor &operator=(const functor &other) = default;
-
-	functor(void (*func)(Object &)) {
-		functor_ = reinterpret_cast<void *>(reinterpret_cast<size_t>(func));
-		wrapper_ = &functor::call_func;
-	}
-	template <typename RealFunctor>
-	functor(const RealFunctor &f) {
-		// The usual casts are not enough for all compilers
-		functor_ = reinterpret_cast<const void *>(&f);
-		wrapper_ = &functor<Object>::template call_it<RealFunctor>;
-	}
-	void operator()(Object &p) const {
-		wrapper_(functor_, p);
-	}
-
-private:
-	static void call_func(const void *pointer, Object &parameter) {
-		typedef void function_type(Object &);
-		function_type *f = reinterpret_cast<function_type *>(reinterpret_cast<size_t>((pointer)));
-		f(parameter);
-	}
-	template <typename Functor>
-	static void call_it(const void *pointer, Object &parameter) {
-		const Functor *f_ptr = reinterpret_cast<const Functor *>(pointer);
-		const Functor &f = *f_ptr;
-		f(parameter);
-	}
-	const void *functor_;
-	void (*wrapper_)(const void *, Object &);
-};
-} // namespace details
-/// \endcond
-
-#ifdef CPPDB_DOXYGEN
-///
-/// Special object that can be constructed from generic function like object \a f.
-///
-/// So once_functor(f) can be created if f can be used like f(s) where s is \ref cppdb::session
-///
-typedef unspecified_class_type once_functor;
-#else
-typedef details::functor<session> once_functor;
-#endif
 
 ///
 /// \brief This object represents query result.
@@ -917,6 +865,7 @@ inline result row(statement &st) {
 /// load drivers open connections and cache them.
 ///
 class CPPDB_API session {
+	using once_functor = std::function<void(session&)>;
 public:
 	///
 	/// Create an empty session object, it should not be used until it is opened with calling open() function.
