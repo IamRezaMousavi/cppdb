@@ -44,9 +44,6 @@ public:
 	void gc();
 
 private:
-	struct data;
-	std::unique_ptr<data> d;
-
 	std::mutex lock_;
 	typedef std::map<std::string, std::shared_ptr<pool> > connections_type;
 	connections_type connections_;

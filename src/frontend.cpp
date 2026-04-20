@@ -10,7 +10,7 @@ namespace cppdb {
 
 class throw_guard {
 public:
-	throw_guard(const std::shared_ptr<backend::connection> conn) : conn_(conn) {}
+	throw_guard(const std::shared_ptr<backend::connection> &conn) : conn_(conn) {}
 	void done() {
 		conn_.reset();
 	}
@@ -24,9 +24,9 @@ private:
 	std::shared_ptr<backend::connection> conn_;
 };
 
-result::result(std::shared_ptr<backend::result> res, std::shared_ptr<backend::statement> stat,
-			   std::shared_ptr<backend::connection> conn)
-	: res_(std::move(res)), stat_(std::move(stat)), conn_(std::move(conn)) {}
+result::result(const std::shared_ptr<backend::result> &res, const std::shared_ptr<backend::statement> &stat,
+			   const std::shared_ptr<backend::connection> &conn)
+	: res_(res), stat_(stat), conn_(conn) {}
 
 result::~result() {
 	clear();
@@ -231,7 +231,7 @@ statement::~statement() {
 	conn_.reset();
 }
 
-statement::statement(std::shared_ptr<backend::statement> stat, std::shared_ptr<backend::connection> conn)
+statement::statement(const std::shared_ptr<backend::statement> &stat, const std::shared_ptr<backend::connection> &conn)
 	: stat_(stat), conn_(conn) {}
 
 bool statement::empty() const {
@@ -417,8 +417,8 @@ void statement::exec() {
 	stat_->exec();
 }
 
-session::session(std::shared_ptr<backend::connection> conn) : conn_(conn) {}
-session::session(std::shared_ptr<backend::connection> conn, const once_functor &f) : conn_(conn) {
+session::session(const std::shared_ptr<backend::connection> &conn) : conn_(conn) {}
+session::session(const std::shared_ptr<backend::connection> &conn, const once_functor &f) : conn_(conn) {
 	once(f);
 }
 session::~session() {
@@ -530,8 +530,6 @@ void session::once(const once_functor &f) {
 		once_called(true);
 	}
 }
-
-struct transaction::data {};
 
 transaction::transaction(session &s) : s_(&s) {
 	s_->begin();

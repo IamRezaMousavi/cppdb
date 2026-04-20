@@ -6,7 +6,6 @@
 #include <cppdb/pool.hpp>
 
 namespace cppdb {
-struct connections_manager::data {};
 connections_manager::connections_manager() {}
 
 connections_manager &connections_manager::instance() {

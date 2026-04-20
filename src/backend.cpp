@@ -11,8 +11,6 @@
 
 namespace cppdb {
 namespace backend {
-// result
-struct result::data {};
 
 // statement
 void statement::cache(statements_cache *c) {
@@ -46,7 +44,7 @@ struct statements_cache::data {
 	size_t size = 0;
 	size_t max_size = 0;
 
-	void insert(const std::shared_ptr<statement> st) {
+	void insert(const std::shared_ptr<statement> &st) {
 		statements_type::iterator p;
 		if ((p = statements.find(st->sql_query())) != statements.end()) {
 			p->second.stat = st;
@@ -223,10 +221,10 @@ void connection::connection_specific_reset(const std::type_info &type,
 std::shared_ptr<pool> connection::get_pool() {
 	return pool_;
 }
-void connection::set_pool(std::shared_ptr<pool> p) {
+void connection::set_pool(const std::shared_ptr<pool> &p) {
 	pool_ = p;
 }
-void connection::set_driver(std::shared_ptr<loadable_driver> p) {
+void connection::set_driver(const std::shared_ptr<loadable_driver> &p) {
 	driver_ = p;
 }
 void connection::clear_cache() {

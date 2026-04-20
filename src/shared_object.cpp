@@ -29,7 +29,7 @@ void *dlsym(void *h, const char *sym) {
 #endif
 
 namespace cppdb {
-shared_object::shared_object(std::string name, void *h) : dlname_(name), handle_(h) {}
+shared_object::shared_object(const std::string &name, void *h) : dlname_(name), handle_(h) {}
 shared_object::~shared_object() {
 	dlclose(handle_);
 }

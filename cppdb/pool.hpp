@@ -65,9 +65,6 @@ public:
 private:
 	std::shared_ptr<backend::connection> get();
 
-	struct data;
-	std::unique_ptr<data> d;
-
 	struct entry {
 		std::shared_ptr<backend::connection> conn;
 		std::time_t last_used = 0L;

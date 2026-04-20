@@ -10,8 +10,6 @@
 
 namespace cppdb {
 
-struct pool::data {};
-
 std::shared_ptr<pool> pool::create(const connection_info &ci) {
 	auto p = std::make_shared<pool>(ci);
 	return p;

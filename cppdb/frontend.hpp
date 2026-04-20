@@ -8,11 +8,11 @@
 #include <cppdb/utils.hpp>
 
 #include <ctime>
+#include <functional>
 #include <iosfwd>
 #include <memory>
 #include <string>
 #include <typeinfo>
-#include <functional>
 
 ///
 /// The namespace of all data related to the cppdb api
@@ -461,8 +461,8 @@ public:
 	}
 
 private:
-	result(std::shared_ptr<backend::result> res, std::shared_ptr<backend::statement> stat,
-		   std::shared_ptr<backend::connection> conn);
+	result(const std::shared_ptr<backend::result> &res, const std::shared_ptr<backend::statement> &stat,
+		   const std::shared_ptr<backend::connection> &conn);
 
 	void check();
 
@@ -805,7 +805,7 @@ public:
 	}
 
 private:
-	statement(std::shared_ptr<backend::statement> stat, std::shared_ptr<backend::connection> conn);
+	statement(const std::shared_ptr<backend::statement> &stat, const std::shared_ptr<backend::connection> &conn);
 
 	friend class session;
 
@@ -865,7 +865,8 @@ inline result row(statement &st) {
 /// load drivers open connections and cache them.
 ///
 class CPPDB_API session {
-	using once_functor = std::function<void(session&)>;
+	using once_functor = std::function<void(session &)>;
+
 public:
 	///
 	/// Create an empty session object, it should not be used until it is opened with calling open() function.
@@ -938,11 +939,11 @@ public:
 	/// function like object func, such that func(*this) is valid expression
 	///
 	///
-	session(std::shared_ptr<backend::connection> conn, const once_functor &f);
+	session(const std::shared_ptr<backend::connection> &conn, const once_functor &f);
 	///
 	/// Create a session using a pointer to backend::connection.
 	///
-	session(std::shared_ptr<backend::connection> conn);
+	session(const std::shared_ptr<backend::connection> &conn);
 
 	///
 	/// Open a session using a connection_info object - parsed connection string \a ci.
@@ -1152,10 +1153,8 @@ public:
 	void rollback();
 
 private:
-	struct data;
 	session *s_;
 	bool commited_ = false;
-	std::unique_ptr<data> d;
 };
 
 } // namespace cppdb

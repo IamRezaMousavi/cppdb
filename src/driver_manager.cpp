@@ -151,7 +151,7 @@ std::shared_ptr<backend::driver> driver_manager::load_driver(connection_info con
 	return drv;
 }
 
-void driver_manager::install_driver(const std::string &name, const std::shared_ptr<backend::driver> drv) {
+void driver_manager::install_driver(const std::string &name, const std::shared_ptr<backend::driver> &drv) {
 	if (!drv) {
 		throw cppdb_error("cppdb::driver_manager::install_driver: Can't install empty driver");
 	}

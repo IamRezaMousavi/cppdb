@@ -28,7 +28,7 @@ public:
 	///
 	/// Install new driver \a drv named \a name to the manager.
 	///
-	void install_driver(const std::string &name, const std::shared_ptr<backend::driver> drv);
+	void install_driver(const std::string &name, const std::shared_ptr<backend::driver> &drv);
 	///
 	/// Unload all drivers that have no more open connections.
 	///
