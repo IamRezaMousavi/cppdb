@@ -1,14 +1,31 @@
 /*! \page changelog Changelog
 
+\section changelog_v0_5_2 Version 0.5.2 (2026-04-22)
+
+Bugs:
+
+- Fixed issue with finding MySQL on FreeBSD.
+- Corrected initialization of some variables.
+
+Improvements:
+
+- Improved passing of std::shared_ptr as arguments.
+- Used override keyword instead of virtual for better clarity in derived classes.
+
+Refactoring:
+- Replaced functor class with std::function for improved flexibility.
+- Leveraged compiler-default implementations for constructors, destructors, and operators.
+
+
 \section changelog_v0_4_2 Version 0.4.2 (2026-04-14)
 
 Breaking change:
 
-- Drop support Borland compiler
+- Dropped support Borland compiler
 
 Bugs:
 
-- fix some compiler warnings
+- Fixed some compiler warnings
 
 Build System:
 
