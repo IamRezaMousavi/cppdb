@@ -6,7 +6,7 @@
 #include <cppdb/pool.hpp>
 #include <cppdb/utils.hpp>
 
-#include <stdlib.h>
+#include <ctime>
 
 namespace cppdb {
 

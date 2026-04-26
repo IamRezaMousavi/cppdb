@@ -9,11 +9,9 @@
 #include <cppdb/utils.hpp>
 
 #include <mysql.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include <iomanip>
-#include <iostream>
 #include <limits>
 #include <sstream>
 #include <vector>

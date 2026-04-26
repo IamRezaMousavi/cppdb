@@ -8,10 +8,8 @@
 #include <cppdb/utils.hpp>
 
 #include <sqlite3.h>
-#include <stdlib.h>
 #include <string.h>
 
-#include <iomanip>
 #include <limits>
 #include <map>
 #include <sstream>
