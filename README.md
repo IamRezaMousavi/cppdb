@@ -106,7 +106,10 @@ int main() {
         cppdb::statement stat;
         stat = sql << "INSERT INTO test(n,f,t,name) "
             "VALUES(?,?,?,?)"
-            << 10 << 3.1415926565 << now << "Hello 'World'";
+            << 10
+            << 3.1415926565
+            << now
+            << "Hello 'World'"; // if c++17, you can use std::optional
 
         stat.exec();
         std::cout << "ID: " << stat.last_insert_id() << std::endl;

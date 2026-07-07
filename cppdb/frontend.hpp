@@ -13,6 +13,10 @@
 #include <string>
 #include <typeinfo>
 
+#if __cplusplus >= 201703L
+#include <optional>
+#endif
+
 ///
 /// The namespace of all data related to the cppdb api
 ///
@@ -35,65 +39,47 @@ CPPDB_API int version_number();
 ///
 /// Null value marker
 ///
-typedef enum {
-	null_value,	   ///< The value is null value
-	not_null_value ///< The valus is not a null value
-} null_tag_type;
+#if __cplusplus >= 201703L
+inline constexpr auto nullopt = std::nullopt;
+template <typename T>
+using Optional = std::optional<T>;
 
+#else
 /// \cond INTERNAL
-namespace tags {
+struct nullopt_t {};
+constexpr nullopt_t nullopt{};
 template <typename T>
-struct into_tag {
-	T &value;
-	null_tag_type &tag;
-	into_tag(T &v, null_tag_type &t) : value(v), tag(t) {}
-};
+class Optional {
+private:
+	bool has_value_ = false;
+	T value_{};
 
-template <typename T>
-struct use_tag {
-	T value;
-	null_tag_type tag;
-	use_tag(T v, null_tag_type t) : value(v), tag(t) {}
-};
+public:
+	Optional() = default;
+	Optional(const T &val) : has_value_(true), value_(val) {}
+	Optional(T &&val) : has_value_(true), value_(std::move(val)) {}
+	Optional(nullopt_t) : has_value_(false), value_() {}
 
-} // namespace tags
+	explicit operator bool() const {
+		return has_value_;
+	}
+	bool has_value() const {
+		return has_value_;
+	}
+
+	T &value() {
+		if (!has_value_)
+			throw std::runtime_error("no value");
+		return value_;
+	}
+	const T &value() const {
+		if (!has_value_)
+			throw std::runtime_error("no value");
+		return value_;
+	}
+};
 /// \endcond
-
-///
-/// \brief  Create a pair of value and tag for fetching a value from row.
-///
-/// The fetched
-/// value will be stored in \a value if the column is not null and the flag
-/// if the value is null or not saved in \a tag
-///
-template <typename T>
-tags::into_tag<T> into(T &value, null_tag_type &tag) {
-	return tags::into_tag<T>(value, tag);
-}
-
-///
-/// \brief Create a pair of a string value and tag for storing it to DB
-///
-
-inline tags::use_tag<const std::string &> use(const std::string &v, null_tag_type tag) {
-	return tags::use_tag<const std::string &>(v, tag);
-}
-
-///
-/// \brief Create a pair of a string value and tag for storing it to DB
-///
-
-inline tags::use_tag<const char *> use(const char *v, null_tag_type tag) {
-	return tags::use_tag<const char *>(v, tag);
-}
-
-///
-/// \brief Create a pair of value and tag for storing it to DB
-///
-template <typename T>
-tags::use_tag<T> use(T value, null_tag_type tag) {
-	return tags::use_tag<T>(value, tag);
-}
+#endif
 
 ///
 /// \brief This object represents query result.
@@ -433,20 +419,21 @@ public:
 	}
 
 	///
-	/// Syntactic sugar, used together with into() function.
+	/// Syntactic sugar.
 	///
-	/// res << into(x,y) is same as
+	/// res >> x is same as
 	///
 	/// \code
-	/// y = res.fetch(x) ? not_null_value : null_value
+	/// x = res.fetch(x) ? Optional(x) : nullopt
 	/// \endcode
 	///
 	template <typename T>
-	result &operator>>(tags::into_tag<T> ref) {
-		if (fetch(ref.value))
-			ref.tag = not_null_value;
+	result &operator>>(Optional<T> &val) {
+		T ref{};
+		if (fetch(ref))
+			val = ref;
 		else
-			ref.tag = null_value;
+			val = nullopt;
 		return *this;
 	}
 
@@ -779,20 +766,18 @@ public:
 	result operator<<(result (*manipulator)(statement &st));
 
 	///
-	/// Used together with use() function.
-	///
-	/// The call st<<use(x,tag) is same as
+	/// The call st << x is same as
 	///
 	/// \code
-	///  (tag == null_value) ?  st.bind_null() : st.bind(x)
+	///  x.has_value() ? st.bind(x) : st.bind_null()
 	/// \endcode
 	///
 	template <typename T>
-	statement &operator<<(const tags::use_tag<T> &val) {
-		if (val.tag == null_value)
+	statement &operator<<(const Optional<T> &val) {
+		if (!val.has_value())
 			return bind_null();
 		else
-			return bind(val.value);
+			return bind(val.value());
 	}
 
 	///

@@ -11,16 +11,16 @@
 
 extern "C" {
 #ifdef CPPDB_WITH_SQLITE3
-cppdb::backend::connection *cppdb_sqlite3_get_connection(cppdb::connection_info const &cs);
+cppdb::backend::connection *cppdb_sqlite3_get_connection(const cppdb::connection_info &cs);
 #endif
 #ifdef CPPDB_WITH_PQ
-cppdb::backend::connection *cppdb_postgresql_get_connection(cppdb::connection_info const &cs);
+cppdb::backend::connection *cppdb_postgresql_get_connection(const cppdb::connection_info &cs);
 #endif
 #ifdef CPPDB_WITH_ODBC
-cppdb::backend::connection *cppdb_odbc_get_connection(cppdb::connection_info const &cs);
+cppdb::backend::connection *cppdb_odbc_get_connection(const cppdb::connection_info &cs);
 #endif
 #ifdef CPPDB_WITH_MYSQL
-cppdb::backend::connection *cppdb_mysql_get_connection(cppdb::connection_info const &cs);
+cppdb::backend::connection *cppdb_mysql_get_connection(const cppdb::connection_info &cs);
 #endif
 }
 
@@ -118,7 +118,7 @@ void driver_manager::collect_unused() {
 
 #endif
 
-std::shared_ptr<backend::driver> driver_manager::load_driver(connection_info const &conn) {
+std::shared_ptr<backend::driver> driver_manager::load_driver(const connection_info &conn) {
 	std::vector<std::string> so_names;
 	std::string module;
 	std::vector<std::string> search_paths = search_paths_;
