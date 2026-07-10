@@ -1,89 +1,114 @@
-# CppDB: Modern & Lightweight C++ Database Library
+# CppDB
 
-This repository is a modern, updated fork of the `cppdb` library, created with the goal of providing a better development experience, leveraging new C++ features, and improving performance and memory management. By focusing on modern standards, this version offers a lightweight and efficient solution for working with databases in C++ projects.
+A modern, lightweight C++11 SQL database library with a unified API for multiple relational database management systems.
 
----
-
-## About This Fork
-
-The original [cppdb](https://sourceforge.net/projects/cppcms/files/) library, while powerful, has been unmaintained for years and has become outdated with respect to modern C++ features and best development practices. This fork addresses these issues by providing a modernized and enhanced version of cppdb.
-
-Our primary goals with this fork are:
-
-* **Modernize the codebase:** We fully utilize C++11 features and have removed outdated code and deprecated methods, replacing them with standard, modern C++ equivalents.
-* **Enhance Performance and Memory Management:** We employ modern techniques, including the use of Smart Pointers, for more efficient memory handling, a reduced risk of memory leaks, and overall improved performance.
-* **Simplify and Improve Readability:** The API has been refined to be cleaner, more straightforward, and easier to understand and use, making development faster and less error-prone.
-* **Streamline Portability and Dependencies:** We’ve simplified the build process using CMake and minimized dependencies to standard C++ libraries and essential database connectors, ensuring easier compilation across different platforms.
-* **Broaden Type Support:** The library now seamlessly supports newer and more advanced data types, offering greater flexibility.
-
-Based on these goals, this fork offers the following Key Features:
-
-* **Performance-Oriented:** Performance is the primary objective, aiming for the fastest possible SQL connectivity.
-* **Connection Pooling:** Transparent support for connection pooling is included to optimize database interactions.
-* **Prepared Statements Caching:** Efficient caching of prepared statements reduces repetitive parsing and execution overhead.
-* **Dynamic Module Loading:** Supports dynamic loading of database modules and optional static linking for flexibility.
-* **Comprehensive RDBMS Support:** Full and high-priority support for Free and Open Source Software (FOSS) RDBMS: MySQL, PostgreSQL, and SQLite3. Extensive support for a wider range of RDBMSs is available through the cppdb-odbc bridge.
-* **Ease of Use:** Designed for simplicity, making it straightforward to integrate and use.
-* **Locale Safety:** Ensures correct handling of international characters and data.
-* **Flexible API:** Offers both an explicit, verbose API for detailed control and a brief, convenient syntactic sugar for quicker development.
+CppDB provides high-performance database access through connection pooling, prepared statement caching, and seamless C++ type mapping while maintaining a simple and intuitive API.
 
 ---
 
-## Installation & Setup
+## Features
 
-### Prerequisites
+### Modern C++
 
-* A C++ compiler with C++11 support (e.g., GCC 4.8+, Clang 3.4+, MSVC 140+).
-* CMake version 3.10 or higher.
-* Relevant drivers for your target database.
-  * Sqlite3 - the library and headers themselfs
-  * MySQL - libmysqlclient
-  * PostgreSQL - libpq
-  * ODBC - unixodbc for POSIX operating systems and Window's build in odbc API for windows.
+* Modern C++11 implementation
+* RAII-based resource management
+* Smart pointer-based memory management
+* Exception-based error handling
+* Cross-platform support (Linux, Windows, macOS)
 
-### Via CMake
+### Performance
 
-The easiest way to add `cppdb` to your project is by using CMake:
+* High-performance connection pooling
+* Prepared statement caching
+* Low-overhead database access
+* Efficient resource utilization
 
-1. Clone this repo
+### SQL API
 
-2. Add it as your project dependency
+* Prepared statements
+* Parameter binding
+* Transaction management
+* Result set iteration
+* Automatic statement execution helpers
 
-    ```cmake
-    add_subdirectory(path/to/cppdb/directory) # Path to cppdb source directory within your project
-    target_link_libraries(your_project_target PRIVATE cppdb)
-    ```
+### Type Mapping
 
-### System Installation
+* Automatic mapping between SQL and C++ types
+* Built-in support for primitive types
+* `std::string` support
+* Date and time support (`std::tm`)
+* NULL value handling
+* Extensible type conversion system for user-defined types
 
-Optional: You can add instructions for system-wide installation using make install if desired, although CMake is usually sufficient.
+### Reliability
 
-1. Clone this repo
+* Thread-safe connection pool
+* Locale-safe string handling
+* Automatic resource cleanup
+* Consistent exception reporting
 
-2. Compile it (e.g., in a build directory):
+### Build System
 
-    ```bash
-    cmake -Bbuild && cmake --build build
-    ```
-
-3. Install it.
-
-    ```bash
-    cmake --install build
-    ```
+* Modern CMake build system
+* Easy integration with existing CMake projects
+* Optional system-wide installation
+* Minimal external dependencies
 
 ---
 
-## Usage
+## Supported Databases
 
-For complete and practical examples of how to use the modernized cppdb, please refer to the [examples/](./examples/) directory in this repository. You will find examples demonstrating connection to various databases, executing queries, and utilizing the new features.
+| Database | Required Client Library |
+| -------- | ----------------------- |
+| SQLite3 | SQLite3 |
+| MySQL / MariaDB | libmysqlclient |
+| PostgreSQL | libpq |
+| ODBC | unixODBC (Linux/macOS) or Windows ODBC API |
+
+Additional database systems can be accessed through the ODBC backend.
+
+---
+
+## Requirements
+
+* C++11 compatible compiler
+* CMake 3.10+
+* Database client libraries for the selected backend
+
+---
+
+## Installation
+
+### Using CMake
+
+```cmake
+add_subdirectory(external/cppdb)
+
+target_link_libraries(my_application PRIVATE cppdb)
+```
+
+### Build
+
+```bash
+cmake -B build
+cmake --build build
+```
+
+### Install
+
+```bash
+cmake --install build
+```
+
+---
+
+## Quick Example
 
 Here’s a very simple example:
 
 ```cpp
 #include <cppdb/frontend.hpp>
 #include <iostream>
-#include <string>
 
 int main() {
     try {
@@ -109,20 +134,11 @@ int main() {
             << 10
             << 3.1415926565
             << now
-            << "Hello 'World'"; // if c++17, you can use std::optional
+            << "Hello 'World'";
 
         stat.exec();
         std::cout << "ID: " << stat.last_insert_id() << std::endl;
         std::cout << "Affected rows " << stat.affected() << std::endl;
-
-        stat.reset();
-
-        stat.bind(20);
-        stat.bind_null();
-        stat.bind(now);
-        stat.bind("Hello 'World'");
-        stat.exec();
-
         std::cout << "Data added successfully." << std::endl;
 
     } catch (const std::exception& e) {
@@ -135,25 +151,55 @@ int main() {
 
 ---
 
+## Connection String Examples
+
+### SQLite
+
+```text
+sqlite3:db=test.db
+```
+
+### MySQL
+
+```text
+mysql:database=test;user=root;password=secret
+```
+
+### PostgreSQL
+
+```text
+postgresql:dbname=test;user=postgres;password=secret
+```
+
+### ODBC
+
+```text
+odbc:dsn=my_database
+```
+
+---
+
+## Roadmap
+
+* Broader C++ Standard Library (STL) Suppor
+* Improved documentation
+* Extended type mapping
+* Additional database backends
+* Performance optimizations
+
+---
+
 ## Contributing
 
-We welcome your contributions to improve the code! If you’d like to help, please:
+Contributions, bug reports, feature requests, and pull requests are welcome.
 
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix (git checkout -b feature/AmazingFeature).
-3. Commit your changes (git commit -m 'Add some AmazingFeature').
-4. Push to the branch (git push origin feature/AmazingFeature).
-5. Submit a Pull Request.
-
-Please check the issues for any existing bug reports before submitting a Pull Request.
+Please open an issue before making large or breaking changes.
 
 ---
 
 ## License
 
-This project is licensed under the **GNU Lesser General Public License v2.1 (LGPL-2.1)**.
-
-Please see the [LICENSE](./LICENSE) file for more details.
+This project is licensed under the **[GNU Lesser General Public License v2.1 (LGPL-2.1)](./LICENSE)**.
 
 ---
 
