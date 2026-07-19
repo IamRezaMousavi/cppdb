@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <string>
 
 #define TEST(x)                                      \
 	do {                                             \
@@ -91,10 +92,9 @@ int main(int argc, char **argv) {
 			std::cout << "[INSERT] ID=" << rowid << " | affected=" << stat.affected() << "\n";
 		}
 		{
-			cppdb::statement stat =
-				sql << "insert into test(n,f,t,name) values(?,?,?,?)" << cppdb::use(10, cppdb::not_null_value)
-					<< cppdb::use(3.1415926565, cppdb::null_value) << cppdb::use(t, cppdb::not_null_value)
-					<< cppdb::use("Hello \'World\'", cppdb::not_null_value) << cppdb::exec;
+			cppdb::statement stat = sql << "insert into test(n,f,t,name) values(?,?,?,?)" << cppdb::Optional<int>(10)
+										<< cppdb::Optional<float>(3.1415926565) << cppdb::Optional<std::tm>(t)
+										<< cppdb::Optional<std::string>("Hello \'World\'") << cppdb::exec;
 			rowid = stat.sequence_last("test_id_seq");
 			std::cout << "[INSERT] ID=" << rowid << " | affected=" << stat.affected() << "\n";
 			TEST(rowid == 2);
@@ -108,22 +108,21 @@ int main(int argc, char **argv) {
 			res = sql << "select id,n,f,t,name from test limit 10";
 		n = 0;
 		while (res.next()) {
-			double f = -1;
+			cppdb::Optional<double> f = cppdb::nullopt;
 			int id = -1, k = -1;
 			std::tm atime = std::tm();
 			std::string name = "nonset";
-			cppdb::null_tag_type tag;
-			res >> id >> k >> cppdb::into(f, tag) >> atime >> name;
+			res >> id >> k >> f >> atime >> name;
 
 			std::cout << "[SELECT RESULTS]\n";
 			std::cout << "id | n | f | name | time\n";
 			std::cout << "----------------------------------------\n";
-			std::cout << id << " | " << k << " | " << f << " | " << name << " | " << asctime(&atime) << '\n';
+			std::cout << id << " | " << k << " | " << f.value() << " | " << name << " | " << asctime(&atime) << '\n';
 
 			TEST(id == n + 1);
 			TEST(k == 10);
-			TEST(n == 0 ? f == 3.1415926565 : f == -1);
-			TEST(n == 0 ? tag == cppdb::not_null_value : tag == cppdb::null_value);
+			TEST(n == 0 ? f.value() == 3.1415926565 : f.value() == -1);
+			TEST(n == 0 ? !f.has_value() : f.has_value());
 			TEST(asctime(&atime) == torig);
 			TEST(name == "Hello 'World'");
 			n++;

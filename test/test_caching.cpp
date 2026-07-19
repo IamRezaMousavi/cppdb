@@ -20,22 +20,15 @@ void sleep(int x) {
 void test_driver_manager() {
 	std::shared_ptr<cppdb::backend::connection> c1, c2, c3, c4;
 	cppdb::driver_manager &dm = cppdb::driver_manager::instance();
+	dm.install_driver("dummy", std::make_shared<dummy::driver>());
 
 	std::cout << "[Test] Testing drivers collection\n";
 
-	cppdb::connections_manager &cm = cppdb::connections_manager::instance();
-	dm.install_driver("dummy", std::make_shared<dummy::loadable_driver>());
 	TEST(dummy::drivers == 1);
-	dm.collect_unused();
-	TEST(dummy::drivers == 0);
-	dm.install_driver("dummy", std::make_shared<dummy::loadable_driver>());
 	c1 = dm.connect("dummy:");
 	TEST(dummy::connections == 1);
-	dm.collect_unused();
 	TEST(dummy::drivers == 1);
-	TEST(dummy::connections == 1);
 	c2 = dm.connect("dummy:");
-	dm.collect_unused();
 	TEST(dummy::connections == 2);
 	TEST(dummy::drivers == 1);
 	c1 = nullptr;
@@ -43,14 +36,11 @@ void test_driver_manager() {
 	c2 = nullptr;
 	TEST(dummy::connections == 0);
 	TEST(dummy::drivers == 1);
-	dm.collect_unused();
-	TEST(dummy::drivers == 0);
-	THROWS(c1 = dm.connect("dummy:"), cppdb::cppdb_error);
 
 	std::cout << "[Test] Testing drivers collection: OK\n";
 
 	std::cout << "[Test] Testing connection pooling\n";
-	dm.install_driver("dummy", std::make_shared<dummy::loadable_driver>());
+	cppdb::connections_manager &cm = cppdb::connections_manager::instance();
 	c1 = cm.open("dummy:@pool_size=2;@pool_max_idle=2");
 	TEST(dummy::connections == 1);
 	c2 = cm.open("dummy:@pool_size=2;@pool_max_idle=2");
@@ -67,18 +57,15 @@ void test_driver_manager() {
 	TEST(dummy::connections == 2);
 	TEST(dummy::drivers == 1);
 	cm.gc();
-	dm.collect_unused();
 	TEST(dummy::connections == 2);
 	TEST(dummy::drivers == 1);
 	cm.gc();
-	dm.collect_unused();
 	TEST(dummy::connections == 2);
 	TEST(dummy::drivers == 1);
 	sleep(3);
 	TEST(dummy::connections == 2);
 	TEST(dummy::drivers == 1);
 	cm.gc();
-	dm.collect_unused();
 	TEST(dummy::connections == 1);
 	TEST(dummy::drivers == 1);
 	c3.reset();
@@ -86,9 +73,8 @@ void test_driver_manager() {
 	TEST(dummy::drivers == 1);
 	sleep(3);
 	cm.gc();
-	dm.collect_unused();
 	TEST(dummy::connections == 0);
-	TEST(dummy::drivers == 0);
+	TEST(dummy::drivers == 1);
 
 	std::cout << "[Test] Testing connection pooling: OK\n";
 }
@@ -100,7 +86,8 @@ void test_stmt_cache() {
 	std::cout << "[Test] Testing statement caching\n";
 
 	cppdb::driver_manager &dm = cppdb::driver_manager::instance();
-	dm.install_driver("dummy", std::make_shared<dummy::loadable_driver>());
+	dm.install_driver("dummy", std::make_shared<dummy::driver>());
+
 	c = dm.connect("dummy:@use_prepared=off");
 	s1 = c->prepare("test1");
 	s2 = c->prepare("test2");

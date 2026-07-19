@@ -1,9 +1,5 @@
-#define CPPDB_DRIVER_SOURCE
-#ifdef CPPDB_WITH_PQ
-#define CPPDB_SOURCE
-#endif
-
 #include <cppdb/backend.hpp>
+#include <cppdb/driver_manager.hpp>
 #include <cppdb/errors.hpp>
 #include <cppdb/numeric_util.hpp>
 #include <cppdb/utils.hpp>
@@ -16,6 +12,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <sstream>
 #include <vector>
 
@@ -660,11 +657,23 @@ private:
 	blob_type blob_;
 };
 
-} // namespace postgresql
-} // namespace cppdb
+class driver final : public backend::driver {
+public:
+	std::shared_ptr<backend::connection> open(const connection_info &ci) override {
+		return backend::make_conn<connection>(ci);
+	}
+};
 
-extern "C" {
-CPPDB_DRIVER_API cppdb::backend::connection *cppdb_postgresql_get_connection(const cppdb::connection_info &cs) {
-	return new cppdb::postgresql::connection(cs);
-}
-}
+} // namespace postgresql
+
+namespace {
+
+struct register_postgresql {
+	register_postgresql() {
+		driver_manager::instance().install_driver("postgresql", std::make_shared<postgresql_backend::driver>());
+	}
+} reg;
+
+} // namespace
+
+} // namespace cppdb

@@ -25,7 +25,7 @@ class connection;
 ///
 /// All this class member functions are thread safe to use from several threads for the same object
 ///
-class CPPDB_API pool : public std::enable_shared_from_this<pool> {
+class pool : public std::enable_shared_from_this<pool> {
 public:
 	pool(const pool &) = delete;
 	void operator=(const pool &) = delete;

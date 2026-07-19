@@ -1,9 +1,9 @@
-#define CPPDB_SOURCE
-
 #include <cppdb/backend.hpp>
 #include <cppdb/conn_manager.hpp>
 #include <cppdb/driver_manager.hpp>
 #include <cppdb/pool.hpp>
+
+#include <vector>
 
 namespace cppdb {
 connections_manager::connections_manager() {}
@@ -12,14 +12,6 @@ connections_manager &connections_manager::instance() {
 	static connections_manager mgr;
 	return mgr;
 }
-
-namespace {
-struct init {
-	init() {
-		connections_manager::instance();
-	}
-} initializer;
-} // namespace
 
 std::shared_ptr<backend::connection> connections_manager::open(const std::string &cs) {
 	std::shared_ptr<pool> p;

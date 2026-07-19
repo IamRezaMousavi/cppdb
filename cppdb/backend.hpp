@@ -27,7 +27,7 @@ namespace backend {
 /// will stay alive as long as statement that created it exits, i.e. statement would be destroyed after
 /// result.
 ///
-class CPPDB_API result {
+class result {
 public:
 	///
 	/// The flag that defines the information about availability of the next row in result
@@ -188,7 +188,7 @@ class statements_cache;
 ///
 /// \brief This class represents a statement that can be either executed or queried for result
 ///
-class CPPDB_API statement {
+class statement {
 public:
 	// Begin of API
 
@@ -381,7 +381,7 @@ std::shared_ptr<T> make_stmt(Args &&...args) {
 }
 
 /// \cond INTERNAL
-class CPPDB_API statements_cache {
+class statements_cache {
 public:
 	statements_cache(const statements_cache &) = delete;
 	void operator=(const statements_cache &) = delete;
@@ -409,7 +409,7 @@ class connection;
 /// given connection string, custom drivers can be are installed using this
 /// class
 ///
-class CPPDB_API driver {
+class driver {
 public:
 	driver(const driver &) = delete;
 	void operator=(const driver &) = delete;
@@ -419,66 +419,18 @@ public:
 	///
 	/// Create a connection object - should be implemented by driver
 	///
-	virtual connection *open(const connection_info &cs) = 0;
+	virtual std::shared_ptr<connection> open(const connection_info &cs) = 0;
 	///
 	/// Create a connection object, generally calls open() but may add some information (as registering objects)
 	/// and unregistering them
 	///
-	virtual connection *connect(const connection_info &cs);
-};
-
-///
-/// \brief This class represents a driver that can be unloaded from the driver_manager.
-///
-class CPPDB_API loadable_driver : public driver, public std::enable_shared_from_this<loadable_driver> {
-public:
-	loadable_driver(const loadable_driver &) = delete;
-	void operator=(const loadable_driver &) = delete;
-
-	loadable_driver() = default;
-	~loadable_driver() override = default;
-
-	///
-	/// Creates a new connection object and keeps track of them for handing (in_use) correctly
-	///
-	connection *connect(const connection_info &cs) override;
-};
-
-extern "C" {
-///
-/// This function type is the function that is generally resolved from the shared objects when loaded
-///
-typedef cppdb::backend::connection *cppdb_backend_connect_function(const connection_info &ci);
-}
-
-///
-/// \brief Create a static driver using connection function (usable for statically linking drivers).
-///
-class CPPDB_API static_driver : public driver {
-public:
-	///
-	/// Typedef of the function pointer that is used for creation of connection objects.
-	///
-	typedef cppdb_backend_connect_function *connect_function_type;
-
-	///
-	/// Create a new driver that creates connection using function \a c
-	///
-	static_driver(connect_function_type c);
-	~static_driver() override = default;
-	///
-	/// Create new connection - basically calls the function to create the object
-	///
-	backend::connection *open(const connection_info &ci) override;
-
-private:
-	connect_function_type connect_;
+	virtual std::shared_ptr<connection> connect(const connection_info &cs);
 };
 
 ///
 /// \brief this class represents connection to database
 ///
-class CPPDB_API connection {
+class connection {
 public:
 	///
 	/// Create a new object. Connection information \a info is required
@@ -488,7 +440,6 @@ public:
 	/// \cond INTERNAL
 	void set_pool(const std::shared_ptr<pool> &p);
 	std::shared_ptr<pool> get_pool();
-	void set_driver(const std::shared_ptr<loadable_driver> &drv);
 	static void dispose(connection *c);
 	std::shared_ptr<statement> prepare(const std::string &q);
 	std::shared_ptr<statement> get_prepared_statement(const std::string &q);
@@ -598,7 +549,6 @@ private:
 	struct data;
 	std::unique_ptr<data> d;
 	statements_cache cache_;
-	std::shared_ptr<loadable_driver> driver_;
 	std::shared_ptr<pool> pool_;
 	bool default_is_prepared_ = true;
 	bool once_called_ = false;

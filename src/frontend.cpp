@@ -1,5 +1,3 @@
-#define CPPDB_SOURCE
-
 #include <cppdb/backend.hpp>
 #include <cppdb/conn_manager.hpp>
 #include <cppdb/frontend.hpp>

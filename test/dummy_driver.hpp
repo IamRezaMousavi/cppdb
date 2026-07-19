@@ -1,4 +1,7 @@
 #include <cppdb/backend.hpp>
+#include <cppdb/driver_manager.hpp>
+
+#include <memory>
 
 namespace dummy {
 
@@ -126,10 +129,6 @@ private:
 	std::string q_;
 };
 
-extern "C" {
-typedef cppdb::backend::connection *cppdb_backend_connect_function(const cppdb::connection_info &ci);
-}
-
 class connection : public cppdb::backend::connection {
 public:
 	connection(const cppdb::connection_info &info) : cppdb::backend::connection(info) {
@@ -164,23 +163,27 @@ public:
 	}
 };
 
-class loadable_driver : public cppdb::backend::loadable_driver {
+class driver final : public cppdb::backend::driver {
 public:
-	loadable_driver() {
+	driver() {
 		drivers++;
 	}
-	connection *open(const cppdb::connection_info &cs) override {
-		return new connection(cs);
+	std::shared_ptr<cppdb::backend::connection> open(const cppdb::connection_info &ci) override {
+		return cppdb::backend::make_conn<connection>(ci);
 	}
-	~loadable_driver() {
+	~driver() {
 		drivers--;
 	}
 };
 
 } // namespace dummy
 
-extern "C" {
-cppdb::backend::connection *dummy_connect_function(const cppdb::connection_info &ci) {
-	return new dummy::connection(ci);
-}
-}
+namespace {
+
+struct register_mysql {
+	register_mysql() {
+		cppdb::driver_manager::instance().install_driver("dummy", std::make_shared<dummy::driver>());
+	}
+} reg;
+
+} // namespace

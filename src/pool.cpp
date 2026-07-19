@@ -1,5 +1,3 @@
-#define CPPDB_SOURCE
-
 #include <cppdb/backend.hpp>
 #include <cppdb/driver_manager.hpp>
 #include <cppdb/logging.hpp>

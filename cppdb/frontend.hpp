@@ -28,13 +28,13 @@ namespace cppdb {
 /// is a major version number, B is a minor version number and
 /// C is patch version
 ///
-CPPDB_API const char *version_string();
+const char *version_string();
 ///
 /// Return CppDB version as a number as a sum A * 10000 + B * 100 + C
 /// where A is a major version number, B is a minor version number and
 /// C is patch version
 ///
-CPPDB_API int version_number();
+int version_number();
 
 ///
 /// Null value marker
@@ -88,7 +88,7 @@ public:
 /// is provided for consistency, but access to any member function with exception of empty() would
 /// throw an exception.
 ///
-class CPPDB_API result {
+class result {
 public:
 	///
 	/// Create an empty result, it is not useful except for having default constructor
@@ -467,7 +467,7 @@ private:
 ///
 /// This object is usually created via session::prepare() function.
 ///
-class CPPDB_API statement {
+class statement {
 public:
 	///
 	/// Default constructor, provided for convenience, access to any member function
@@ -848,7 +848,7 @@ inline result row(statement &st) {
 /// It is the main class that is used for access to the DB, it uses various singleton classes to
 /// load drivers open connections and cache them.
 ///
-class CPPDB_API session {
+class session {
 	using once_functor = std::function<void(session &)>;
 
 public:
@@ -1114,7 +1114,7 @@ private:
 /// This class is RAII transaction guard that causes automatic transaction rollback on stack unwind, unless
 /// the transaction is committed
 ///
-class CPPDB_API transaction {
+class transaction {
 public:
 	transaction(const transaction &) = delete;
 	void operator=(const transaction &) = delete;

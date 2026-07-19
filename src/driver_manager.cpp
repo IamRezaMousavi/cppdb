@@ -1,56 +1,8 @@
-#define CPPDB_SOURCE
-
 #include <cppdb/backend.hpp>
 #include <cppdb/driver_manager.hpp>
-#include <cppdb/shared_object.hpp>
 #include <cppdb/utils.hpp>
 
-#include <list>
-#include <mutex>
-#include <vector>
-
-extern "C" {
-#ifdef CPPDB_WITH_SQLITE3
-cppdb::backend::connection *cppdb_sqlite3_get_connection(const cppdb::connection_info &cs);
-#endif
-#ifdef CPPDB_WITH_PQ
-cppdb::backend::connection *cppdb_postgresql_get_connection(const cppdb::connection_info &cs);
-#endif
-#ifdef CPPDB_WITH_ODBC
-cppdb::backend::connection *cppdb_odbc_get_connection(const cppdb::connection_info &cs);
-#endif
-#ifdef CPPDB_WITH_MYSQL
-cppdb::backend::connection *cppdb_mysql_get_connection(const cppdb::connection_info &cs);
-#endif
-}
-
 namespace cppdb {
-
-typedef backend::static_driver::connect_function_type connect_function_type;
-
-class so_driver : public backend::loadable_driver {
-public:
-	so_driver(const std::string &name, const std::vector<std::string> &so_list) : connect_(0) {
-		std::string symbol_name = "cppdb_" + name + "_get_connection";
-		for (unsigned i = 0; i < so_list.size(); i++) {
-			so_ = shared_object::open(so_list[i]);
-			if (so_) {
-				so_->safe_resolve(symbol_name, connect_);
-				break;
-			}
-		}
-		if (!so_ || !connect_) {
-			throw cppdb_error("cppdb::driver failed to load driver " + name + " - no module found");
-		}
-	}
-	backend::connection *open(const connection_info &ci) override {
-		return connect_(ci);
-	}
-
-private:
-	connect_function_type connect_;
-	std::shared_ptr<shared_object> so_;
-};
 
 std::shared_ptr<backend::connection> driver_manager::connect(const std::string &str) {
 	connection_info conn(str);
@@ -65,90 +17,10 @@ std::shared_ptr<backend::connection> driver_manager::connect(const connection_in
 		if (p != drivers_.end()) {
 			drv_ptr = p->second;
 		} else {
-			drv_ptr = load_driver(conn);
-			drivers_[conn.driver] = drv_ptr;
+			throw cppdb_error("cppdb::driver_manager::connect: Can't find driver");
 		}
 	}
-	return backend::make_conn<backend::connection>(drv_ptr->connect(conn));
-}
-void driver_manager::collect_unused() {
-	std::list<std::shared_ptr<backend::driver> > garbage;
-	{
-		std::lock_guard<std::mutex> lock(lock_);
-		auto p = drivers_.begin();
-		while (p != drivers_.end()) {
-			if (p->second.unique()) {
-				// driver not in used
-				garbage.push_back(p->second);
-				auto tmp = p;
-				++p;
-				drivers_.erase(tmp);
-			} else {
-				++p;
-			}
-		}
-	}
-	garbage.clear();
-}
-
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) || defined(__CYGWIN__)
-
-#define CPPDB_LIBRARY_SUFFIX_V1 "-" CPPDB_SOVERSION CPPDB_LIBRARY_SUFFIX
-#define CPPDB_LIBRARY_SUFFIX_V2 CPPDB_LIBRARY_SUFFIX
-
-#elif defined(__APPLE__)
-
-#define CPPDB_LIBRARY_SUFFIX_V1 "." CPPDB_SOVERSION CPPDB_LIBRARY_SUFFIX
-#define CPPDB_LIBRARY_SUFFIX_V2 CPPDB_LIBRARY_SUFFIX
-
-#else
-
-#define CPPDB_LIBRARY_SUFFIX_V1 CPPDB_LIBRARY_SUFFIX "." CPPDB_SOVERSION
-#define CPPDB_LIBRARY_SUFFIX_V2 CPPDB_LIBRARY_SUFFIX
-
-#endif
-
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32)) && !defined(__CYGWIN__)
-
-#define PATH_SEPARATOR ';'
-
-#else
-
-#define PATH_SEPARATOR ':'
-
-#endif
-
-std::shared_ptr<backend::driver> driver_manager::load_driver(const connection_info &conn) {
-	std::vector<std::string> so_names;
-	std::string module;
-	std::vector<std::string> search_paths = search_paths_;
-	std::string mpath = conn.get("@modules_path");
-	if (!mpath.empty()) {
-		size_t sep = mpath.find(PATH_SEPARATOR);
-		search_paths.push_back(mpath.substr(0, sep));
-		while (sep < mpath.size()) {
-			size_t next = mpath.find(PATH_SEPARATOR, sep + 1);
-			search_paths.push_back(mpath.substr(sep + 1, next - sep + 1));
-			sep = next;
-		}
-	}
-	if (!(module = conn.get("@module")).empty()) {
-		so_names.push_back(module);
-	} else {
-		std::string so_name1 = CPPDB_LIBRARY_PREFIX "cppdb_" + conn.driver + CPPDB_LIBRARY_SUFFIX_V1;
-		std::string so_name2 = CPPDB_LIBRARY_PREFIX "cppdb_" + conn.driver + CPPDB_LIBRARY_SUFFIX_V2;
-
-		for (unsigned i = 0; i < search_paths.size(); i++) {
-			so_names.push_back(search_paths[i] + "/" + so_name1);
-			so_names.push_back(search_paths[i] + "/" + so_name2);
-		}
-		if (!no_default_directory_) {
-			so_names.push_back(so_name1);
-			so_names.push_back(so_name2);
-		}
-	}
-	std::shared_ptr<backend::driver> drv = std::make_shared<so_driver>(conn.driver, so_names);
-	return drv;
+	return drv_ptr->connect(conn);
 }
 
 void driver_manager::install_driver(const std::string &name, const std::shared_ptr<backend::driver> &drv) {
@@ -159,46 +31,9 @@ void driver_manager::install_driver(const std::string &name, const std::shared_p
 	drivers_[name] = drv;
 }
 
-driver_manager::driver_manager() {}
-
-void driver_manager::add_search_path(const std::string &p) {
-	std::lock_guard<std::mutex> lock(lock_);
-	search_paths_.push_back(p);
-}
-void driver_manager::clear_search_paths() {
-	std::lock_guard<std::mutex> lock(lock_);
-	search_paths_.clear();
-}
-void driver_manager::use_default_search_path(bool v) {
-	std::lock_guard<std::mutex> lock(lock_);
-	no_default_directory_ = !v;
-}
 driver_manager &driver_manager::instance() {
 	static driver_manager instance;
 	return instance;
 }
-namespace {
-struct initializer {
-	initializer() {
-		driver_manager::instance();
-#ifdef CPPDB_WITH_SQLITE3
-		driver_manager::instance().install_driver(
-			"sqlite3", std::make_shared<backend::static_driver>(cppdb_sqlite3_get_connection));
-#endif
-#ifdef CPPDB_WITH_ODBC
-		driver_manager::instance().install_driver("odbc",
-												  std::make_shared<backend::static_driver>(cppdb_odbc_get_connection));
-#endif
-#ifdef CPPDB_WITH_PQ
-		driver_manager::instance().install_driver(
-			"postgresql", std::make_shared<backend::static_driver>(cppdb_postgresql_get_connection));
-#endif
-#ifdef CPPDB_WITH_MYSQL
-		driver_manager::instance().install_driver("mysql",
-												  std::make_shared<backend::static_driver>(cppdb_mysql_get_connection));
-#endif
-	}
 
-} init;
-} // namespace
 } // namespace cppdb

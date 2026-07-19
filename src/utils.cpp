@@ -1,5 +1,3 @@
-#define CPPDB_SOURCE
-
 #include <cppdb/errors.hpp>
 #include <cppdb/utils.hpp>
 

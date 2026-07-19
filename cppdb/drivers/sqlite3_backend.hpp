@@ -1,9 +1,5 @@
-#define CPPDB_DRIVER_SOURCE
-#ifdef CPPDB_WITH_SQLITE3
-#define CPPDB_SOURCE
-#endif
-
 #include <cppdb/backend.hpp>
+#include <cppdb/driver_manager.hpp>
 #include <cppdb/errors.hpp>
 #include <cppdb/utils.hpp>
 
@@ -12,6 +8,7 @@
 
 #include <limits>
 #include <map>
+#include <memory>
 #include <sstream>
 
 namespace cppdb {
@@ -392,11 +389,23 @@ private:
 	sqlite3 *conn_ = nullptr;
 };
 
-} // namespace sqlite3_backend
-} // namespace cppdb
+class driver final : public backend::driver {
+public:
+	std::shared_ptr<backend::connection> open(const connection_info &ci) override {
+		return backend::make_conn<connection>(ci);
+	}
+};
 
-extern "C" {
-CPPDB_DRIVER_API cppdb::backend::connection *cppdb_sqlite3_get_connection(const cppdb::connection_info &cs) {
-	return new cppdb::sqlite3_backend::connection(cs);
-}
-}
+} // namespace sqlite3_backend
+
+namespace {
+
+struct register_sqlite3 {
+	register_sqlite3() {
+		driver_manager::instance().install_driver("sqlite3", std::make_shared<sqlite3_backend::driver>());
+	}
+} reg;
+
+} // namespace
+
+} // namespace cppdb

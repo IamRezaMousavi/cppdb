@@ -1,9 +1,5 @@
-#define CPPDB_DRIVER_SOURCE
-#ifdef CPPDB_WITH_ODBC
-#define CPPDB_SOURCE
-#endif
-
 #include <cppdb/backend.hpp>
+#include <cppdb/driver_manager.hpp>
 #include <cppdb/numeric_util.hpp>
 #include <cppdb/utils.hpp>
 
@@ -14,6 +10,7 @@
 #include <iostream>
 #include <limits>
 #include <list>
+#include <memory>
 #include <sstream>
 #include <vector>
 
@@ -992,11 +989,23 @@ private:
 	connection_info ci_;
 };
 
-} // namespace odbc_backend
-} // namespace cppdb
+class driver final : public backend::driver {
+public:
+	std::shared_ptr<backend::connection> open(const connection_info &ci) override {
+		return backend::make_conn<connection>(ci);
+	}
+};
 
-extern "C" {
-CPPDB_DRIVER_API cppdb::backend::connection *cppdb_odbc_get_connection(const cppdb::connection_info &cs) {
-	return new cppdb::odbc_backend::connection(cs);
-}
-}
+} // namespace odbc_backend
+
+namespace {
+
+struct register_odbc {
+	register_odbc() {
+		driver_manager::instance().install_driver("odbc", std::make_shared<odbc_backend::driver>());
+	}
+} reg;
+
+} // namespace
+
+} // namespace cppdb

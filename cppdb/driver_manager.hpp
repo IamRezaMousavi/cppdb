@@ -5,10 +5,10 @@
 #include <cppdb/defs.h>
 #include <cppdb/utils.hpp>
 
-#include <map>
+#include <memory>
 #include <mutex>
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 namespace cppdb {
 
@@ -17,7 +17,7 @@ namespace cppdb {
 ///
 /// All its member functions are thread safe
 ///
-class CPPDB_API driver_manager {
+class driver_manager {
 public:
 	driver_manager(const driver_manager &) = delete;
 	void operator=(const driver_manager &) = delete;
@@ -29,10 +29,6 @@ public:
 	/// Install new driver \a drv named \a name to the manager.
 	///
 	void install_driver(const std::string &name, const std::shared_ptr<backend::driver> &drv);
-	///
-	/// Unload all drivers that have no more open connections.
-	///
-	void collect_unused();
 
 	///
 	/// Add a path were the driver should search for loadable modules
@@ -56,14 +52,9 @@ public:
 	std::shared_ptr<backend::connection> connect(const std::string &connectoin_string);
 
 private:
-	driver_manager();
+	driver_manager() = default;
 
-	std::shared_ptr<backend::driver> load_driver(const connection_info &ci);
-
-	typedef std::map<std::string, std::shared_ptr<backend::driver> > drivers_type;
-	std::vector<std::string> search_paths_;
-	bool no_default_directory_ = false;
-	drivers_type drivers_;
+	std::unordered_map<std::string, std::shared_ptr<backend::driver>> drivers_;
 	std::mutex lock_;
 };
 

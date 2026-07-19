@@ -14,19 +14,19 @@ namespace cppdb {
 ///
 /// Used by backend implementations;
 ///
-CPPDB_API std::tm parse_time(const char *value);
+std::tm parse_time(const char *value);
 ///
 /// \brief format a string as time value.
 ///
 /// Used by backend implementations;
 ///
-CPPDB_API std::string format_time(const std::tm &v);
+std::string format_time(const std::tm &v);
 ///
 /// \brief parse a string as time value.
 ///
 /// Used by backend implementations;
 ///
-CPPDB_API std::tm parse_time(const std::string &v);
+std::tm parse_time(const std::string &v);
 
 ///
 /// \brief Parse a connection string \a cs into driver name \a driver_name and list of properties \a props
@@ -45,13 +45,13 @@ CPPDB_API std::tm parse_time(const std::string &v);
 ///
 /// Where driver is "mysql", username is "root", password is "asdf'5764dg", database is "test" and
 /// special value "@use_prepared" is off - internal cppdb option.
-CPPDB_API void parse_connection_string(const std::string &cs, std::string &driver_name,
+void parse_connection_string(const std::string &cs, std::string &driver_name,
 									   std::map<std::string, std::string> &props);
 
 ///
 /// \brief Class that represents parsed connection string
 ///
-class CPPDB_API connection_info {
+class connection_info {
 public:
 	///
 	/// The original connection string

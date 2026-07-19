@@ -13,7 +13,7 @@ namespace cppdb {
 /// The user is expected to derive its own object from this class
 /// and save them withing the connection
 ///
-class CPPDB_API connection_specific_data {
+class connection_specific_data {
 public:
 	connection_specific_data(const connection_specific_data &) = delete;
 	void operator=(const connection_specific_data &) = delete;

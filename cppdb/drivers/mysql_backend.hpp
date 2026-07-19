@@ -1,9 +1,5 @@
-#define CPPDB_DRIVER_SOURCE
-#ifdef CPPDB_WITH_MYSQL
-#define CPPDB_SOURCE
-#endif
-
 #include <cppdb/backend.hpp>
+#include <cppdb/driver_manager.hpp>
 #include <cppdb/errors.hpp>
 #include <cppdb/numeric_util.hpp>
 #include <cppdb/utils.hpp>
@@ -13,6 +9,7 @@
 
 #include <iomanip>
 #include <limits>
+#include <memory>
 #include <sstream>
 #include <vector>
 
@@ -1251,11 +1248,23 @@ private:
 	MYSQL *conn_ = nullptr;
 };
 
-} // namespace mysql_backend
-} // namespace cppdb
+class driver final : public backend::driver {
+public:
+	std::shared_ptr<backend::connection> open(const connection_info &ci) override {
+		return backend::make_conn<connection>(ci);
+	}
+};
 
-extern "C" {
-CPPDB_DRIVER_API cppdb::backend::connection *cppdb_mysql_get_connection(const cppdb::connection_info &cs) {
-	return new cppdb::mysql_backend::connection(cs);
-}
-}
+} // namespace mysql_backend
+
+namespace {
+
+struct register_mysql {
+	register_mysql() {
+		driver_manager::instance().install_driver("mysql", std::make_shared<mysql_backend::driver>());
+	}
+} reg;
+
+} // namespace
+
+} // namespace cppdb

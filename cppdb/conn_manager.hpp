@@ -20,7 +20,7 @@ namespace cppdb {
 ///
 /// This class member functions are thread safe
 ///
-class CPPDB_API connections_manager {
+class connections_manager {
 	connections_manager();
 
 public:

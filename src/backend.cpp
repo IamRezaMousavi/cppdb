@@ -1,5 +1,3 @@
-#define CPPDB_SOURCE
-
 #include <cppdb/backend.hpp>
 #include <cppdb/logging.hpp>
 #include <cppdb/pool.hpp>
@@ -8,6 +6,7 @@
 #include <algorithm>
 #include <list>
 #include <map>
+#include <memory>
 
 namespace cppdb {
 namespace backend {
@@ -224,9 +223,6 @@ std::shared_ptr<pool> connection::get_pool() {
 void connection::set_pool(const std::shared_ptr<pool> &p) {
 	pool_ = p;
 }
-void connection::set_driver(const std::shared_ptr<loadable_driver> &p) {
-	driver_ = p;
-}
 void connection::clear_cache() {
 	cache_.clear();
 }
@@ -248,26 +244,12 @@ void connection::dispose(connection *c) {
 		p->put(c);
 	else {
 		c->clear_cache();
-		// Make sure that driver would not be
-		// destoryed destructor of connection exits
-		// std::shared_ptr<loadable_driver> driver = c->driver_;
 		delete c;
-		// driver.reset();
 	}
 }
 
-connection *driver::connect(const connection_info &cs) {
+std::shared_ptr<connection> driver::connect(const connection_info &cs) {
 	return open(cs);
-}
-connection *loadable_driver::connect(const connection_info &cs) {
-	connection *c = open(cs);
-	c->set_driver(shared_from_this());
-	return c;
-}
-
-static_driver::static_driver(connect_function_type c) : connect_(c) {}
-backend::connection *static_driver::open(const connection_info &ci) {
-	return connect_(ci);
 }
 
 } // namespace backend

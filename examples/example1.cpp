@@ -1,3 +1,4 @@
+#include <cppdb/drivers/sqlite3_backend.hpp>
 #include <cppdb/frontend.hpp>
 
 #include <ctime>
