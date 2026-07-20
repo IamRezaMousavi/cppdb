@@ -2,7 +2,6 @@
 #define CPPDB_BACKEND_HPP
 
 #include <cppdb/connection_specific.hpp>
-#include <cppdb/defs.h>
 #include <cppdb/errors.hpp>
 #include <cppdb/pool.hpp>
 #include <cppdb/utils.hpp>
@@ -369,14 +368,12 @@ private:
 template <typename T>
 std::shared_ptr<T> make_stmt(T *ptr) {
 	static_assert(std::is_base_of<statement, T>::value, "T must derive from statement");
-
 	return std::shared_ptr<T>(ptr, [](statement *p) { statement::dispose(p); });
 }
 
 template <typename T, typename... Args>
 std::shared_ptr<T> make_stmt(Args &&...args) {
 	static_assert(std::is_base_of<statement, T>::value, "T must derive from statement");
-
 	return std::shared_ptr<T>(new T(std::forward<Args>(args)...), [](statement *p) { statement::dispose(p); });
 }
 
@@ -558,14 +555,12 @@ private:
 template <typename T>
 std::shared_ptr<T> make_conn(T *ptr) {
 	static_assert(std::is_base_of<connection, T>::value, "T must derive from connection");
-
 	return std::shared_ptr<T>(ptr, [](connection *p) { connection::dispose(p); });
 }
 
 template <typename T, typename... Args>
 std::shared_ptr<T> make_conn(Args &&...args) {
 	static_assert(std::is_base_of<connection, T>::value, "T must derive from connection");
-
 	return std::shared_ptr<T>(new T(std::forward<Args>(args)...), [](connection *p) { connection::dispose(p); });
 }
 

@@ -47,17 +47,17 @@ std::shared_ptr<backend::connection> pool::open() {
 // this is thread safe member function
 std::shared_ptr<backend::connection> pool::get() {
 	if (limit_ == 0)
-		return 0;
+		return nullptr;
 	std::shared_ptr<backend::connection> c;
 	pool_type garbage;
-	std::time_t now = time(0);
+	std::time_t now = time(nullptr);
 	{
 		std::lock_guard<std::mutex> lock(lock_);
 		// Nothing there should throw so it is safe
-		pool_type::iterator p = pool_.begin(), tmp;
+		auto p = pool_.begin();
 		while (p != pool_.end()) {
 			if (p->last_used + life_time_ < now) {
-				tmp = p;
+				auto tmp = p;
 				p++;
 				garbage.splice(garbage.begin(), pool_, tmp);
 				size_--;
@@ -82,11 +82,11 @@ void pool::put(backend::connection *c_in) {
 	if (limit_ == 0)
 		return;
 	pool_type garbage;
-	std::time_t now = time(0);
+	std::time_t now = time(nullptr);
 	{
 		std::lock_guard<std::mutex> lock(lock_);
 		// under lock do all very fast
-		if (c.get()) {
+		if (c) {
 			pool_.push_back(entry());
 			pool_.back().last_used = now;
 			pool_.back().conn = c;
@@ -95,10 +95,10 @@ void pool::put(backend::connection *c_in) {
 
 		// Nothing there should throw so it is safe
 
-		pool_type::iterator p = pool_.begin(), tmp;
+		auto p = pool_.begin();
 		while (p != pool_.end()) {
 			if (p->last_used + life_time_ < now) {
-				tmp = p;
+				auto tmp = p;
 				p++;
 				garbage.splice(garbage.begin(), pool_, tmp);
 				size_--;

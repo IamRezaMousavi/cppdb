@@ -1,6 +1,7 @@
 #include <cppdb/errors.hpp>
 #include <cppdb/utils.hpp>
 
+#include <array>
 #include <cstdio>
 #include <cstring>
 #include <ctime>
@@ -9,9 +10,9 @@
 
 namespace cppdb {
 std::string format_time(const std::tm &v) {
-	char buf[64] = {0};
-	strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &v);
-	return std::string(buf);
+	std::array<char, 64> buf{};
+	const auto n = strftime(buf.data(), buf.size(), "%Y-%m-%d %H:%M:%S", &v);
+	return std::string(buf.data(), n);
 }
 
 std::tm parse_time(const std::string &v) {
@@ -53,13 +54,12 @@ std::string trim(const std::string &s) {
 }
 } // namespace
 
-void parse_connection_string(const std::string &connection_string, std::string &driver,
-							 std::map<std::string, std::string> &params) {
-	params.clear();
+properties_type parse_connection_string(const std::string &connection_string) {
+	properties_type params;
 	size_t p = connection_string.find(':');
 	if (p == std::string::npos)
 		throw cppdb_error("cppdb::Invalid connection string - no driver given");
-	driver = connection_string.substr(0, p);
+	params["driver"] = connection_string.substr(0, p);
 	p++;
 	while (p < connection_string.size()) {
 		size_t n = connection_string.find('=', p);
@@ -116,9 +116,10 @@ void parse_connection_string(const std::string &connection_string, std::string &
 			}
 		}
 	}
+	return params;
 } //
 std::string connection_info::get(const std::string &prop, const std::string &default_value) const {
-	properties_type::const_iterator p = properties.find(prop);
+	auto p = properties.find(prop);
 	if (p == properties.end())
 		return default_value;
 	else
@@ -130,13 +131,13 @@ bool connection_info::has(const std::string &prop) const {
 }
 
 int connection_info::get(const std::string &prop, int default_value) const {
-	properties_type::const_iterator p = properties.find(prop);
+	auto p = properties.find(prop);
 	if (p == properties.end())
 		return default_value;
 	std::istringstream ss;
 	ss.imbue(std::locale::classic());
 	ss.str(p->second);
-	int val;
+	int val = 0;
 	ss >> val;
 	if (!ss || !ss.eof()) {
 		throw cppdb_error("cppdb::connection_info property " + prop + " expected to be integer value");

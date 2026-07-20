@@ -20,7 +20,7 @@ void statement::dispose(statement *p) {
 	if (!p)
 		return;
 	statements_cache *cache = p->cache_;
-	p->cache_ = 0;
+	p->cache_ = nullptr;
 	if (cache)
 		cache->put(p);
 	else
@@ -31,8 +31,8 @@ void statement::dispose(statement *p) {
 
 struct statements_cache::data {
 	struct entry;
-	typedef std::map<std::string, entry> statements_type;
-	typedef std::list<statements_type::iterator> lru_type;
+	using statements_type = std::map<std::string, entry>;
+	using lru_type = std::list<statements_type::iterator>;
 	struct entry {
 		std::shared_ptr<statement> stat;
 		lru_type::iterator lru_ptr;
@@ -110,7 +110,7 @@ void statements_cache::clear() {
 }
 
 bool statements_cache::active() {
-	return d.get() != nullptr;
+	return d != nullptr;
 }
 
 //////////////
@@ -118,7 +118,7 @@ bool statements_cache::active() {
 //////////////
 
 struct connection::data {
-	typedef std::list<std::shared_ptr<connection_specific_data>> conn_specific_type;
+	using conn_specific_type = std::list<std::shared_ptr<connection_specific_data>>;
 	conn_specific_type conn_specific;
 };
 std::shared_ptr<statement> connection::prepare(const std::string &q) {
@@ -151,7 +151,7 @@ std::shared_ptr<statement> connection::get_prepared_uncached_statement(const std
 	return st;
 }
 
-connection::connection(const connection_info &info) : d(new connection::data), pool_(0) {
+connection::connection(const connection_info &info) : d(new connection::data), pool_(nullptr) {
 	int cache_size = info.get("@stmt_cache_size", 64);
 	if (cache_size > 0) {
 		cache_.set_size(cache_size);
@@ -255,8 +255,5 @@ std::shared_ptr<connection> driver::connect(const connection_info &cs) {
 } // namespace backend
 
 struct connection_specific_data::data {};
-
-connection_specific_data::connection_specific_data() {}
-connection_specific_data::~connection_specific_data() {}
 
 } // namespace cppdb

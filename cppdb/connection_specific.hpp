@@ -1,8 +1,6 @@
 #ifndef CPPDB_CONNECTION_SPECIFIC_HPP
 #define CPPDB_CONNECTION_SPECIFIC_HPP
 
-#include <cppdb/defs.h>
-
 #include <memory>
 
 namespace cppdb {
@@ -18,8 +16,8 @@ public:
 	connection_specific_data(const connection_specific_data &) = delete;
 	void operator=(const connection_specific_data &) = delete;
 
-	connection_specific_data();
-	virtual ~connection_specific_data();
+	connection_specific_data() = default;
+	virtual ~connection_specific_data() = default;
 
 private:
 	struct data;

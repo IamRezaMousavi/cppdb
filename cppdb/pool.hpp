@@ -1,7 +1,6 @@
 #ifndef CPPDB_POOL_HPP
 #define CPPDB_POOL_HPP
 
-#include <cppdb/defs.h>
 #include <cppdb/utils.hpp>
 
 #include <list>
@@ -41,7 +40,7 @@ public:
 	///
 	/// The pointer that is used to handle pool object
 	///
-	typedef std::shared_ptr<pool> pointer;
+	using pointer = std::shared_ptr<pool>;
 
 	~pool();
 
@@ -70,7 +69,7 @@ private:
 		std::time_t last_used = 0L;
 	};
 
-	typedef std::list<entry> pool_type;
+	using pool_type = std::list<entry>;
 	// non-mutable members
 
 	size_t limit_ = 0;

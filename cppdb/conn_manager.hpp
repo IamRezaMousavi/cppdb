@@ -2,7 +2,6 @@
 #define CPPDB_CONN_MANAGER_HPP
 
 #include <cppdb/backend.hpp>
-#include <cppdb/defs.h>
 #include <cppdb/pool.hpp>
 #include <cppdb/utils.hpp>
 
@@ -21,7 +20,7 @@ namespace cppdb {
 /// This class member functions are thread safe
 ///
 class connections_manager {
-	connections_manager();
+	connections_manager() = default;
 
 public:
 	connections_manager(const connections_manager &) = delete;
@@ -45,7 +44,7 @@ public:
 
 private:
 	std::mutex lock_;
-	typedef std::map<std::string, std::shared_ptr<pool> > connections_type;
+	using connections_type = std::map<std::string, std::shared_ptr<pool>>;
 	connections_type connections_;
 };
 

@@ -1,8 +1,6 @@
 #ifndef CPPDB_UTIL_HPP
 #define CPPDB_UTIL_HPP
 
-#include <cppdb/defs.h>
-
 #include <ctime>
 #include <map>
 #include <string>
@@ -29,6 +27,11 @@ std::string format_time(const std::tm &v);
 std::tm parse_time(const std::string &v);
 
 ///
+/// Type that represent key, values set
+///
+using properties_type = std::map<std::string, std::string>;
+
+///
 /// \brief Parse a connection string \a cs into driver name \a driver_name and list of properties \a props
 ///
 /// The connection string format is following:
@@ -45,8 +48,7 @@ std::tm parse_time(const std::string &v);
 ///
 /// Where driver is "mysql", username is "root", password is "asdf'5764dg", database is "test" and
 /// special value "@use_prepared" is off - internal cppdb option.
-void parse_connection_string(const std::string &cs, std::string &driver_name,
-									   std::map<std::string, std::string> &props);
+properties_type parse_connection_string(const std::string &cs);
 
 ///
 /// \brief Class that represents parsed connection string
@@ -61,10 +63,6 @@ public:
 	/// The driver name
 	///
 	std::string driver;
-	///
-	/// Type that represent key, values set
-	///
-	typedef std::map<std::string, std::string> properties_type;
 	///
 	/// The std::map of key value properties.
 	///
@@ -92,7 +90,8 @@ public:
 	/// Create connection_info from the connection string parsing it.
 	///
 	explicit connection_info(const std::string &cs) : connection_string(cs) {
-		parse_connection_string(cs, driver, properties);
+		properties = parse_connection_string(cs);
+		driver = properties["driver"];
 	}
 };
 

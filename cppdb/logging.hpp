@@ -4,10 +4,11 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <cstdint>
 
 namespace cppdb {
 
-enum class LogLevel {
+enum class LogLevel : std::uint8_t {
 	Debug = 0,
 	Info,
 	Warning,

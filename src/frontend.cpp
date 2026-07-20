@@ -4,6 +4,8 @@
 #include <cppdb/logging.hpp>
 #include <cppdb/pool.hpp>
 
+#include <exception>
+
 namespace cppdb {
 
 class throw_guard {
@@ -40,7 +42,7 @@ bool result::next() {
 	if (eof_)
 		return false;
 	fetched_ = true;
-	eof_ = res_->next() == false;
+	eof_ = !res_->next();
 	current_col_ = 0;
 	return !eof_;
 }

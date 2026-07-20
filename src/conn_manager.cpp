@@ -6,8 +6,6 @@
 #include <vector>
 
 namespace cppdb {
-connections_manager::connections_manager() {}
-
 connections_manager &connections_manager::instance() {
 	static connections_manager mgr;
 	return mgr;
@@ -18,7 +16,7 @@ std::shared_ptr<backend::connection> connections_manager::open(const std::string
 	/// seems we may be using pool
 	if (cs.find("@pool_size") != std::string::npos) {
 		std::lock_guard<std::mutex> lock(lock_);
-		connections_type::iterator pool_ptr = connections_.find(cs);
+		auto pool_ptr = connections_.find(cs);
 		if (pool_ptr != connections_.end())
 			p = pool_ptr->second;
 	}
@@ -50,20 +48,20 @@ void connections_manager::gc() {
 	pools_.reserve(100);
 	{
 		std::lock_guard<std::mutex> lock(lock_);
-		for (connections_type::iterator p = connections_.begin(); p != connections_.end(); ++p) {
-			pools_.push_back(p->second);
+		for (const auto &p : connections_) {
+			pools_.push_back(p.second);
 		}
 	}
-	for (unsigned i = 0; i < pools_.size(); i++) {
-		pools_[i]->gc();
+	for (const auto &pool : pools_) {
+		pool->gc();
 	}
 	pools_.clear();
 	{
 		std::lock_guard<std::mutex> lock(lock_);
-		for (connections_type::iterator p = connections_.begin(); p != connections_.end();) {
+		for (auto p = connections_.begin(); p != connections_.end();) {
 			if (p->second.unique()) {
 				pools_.push_back(p->second);
-				connections_type::iterator tmp = p;
+				auto tmp = p;
 				++p;
 				connections_.erase(tmp);
 			} else

@@ -10,8 +10,6 @@ Checks: [
   '-modernize-*',
   '-misc-*',
   '-readability-*',
-  '-bugprone-reserved-identifier',
-  '-cppcoreguidelines-avoid-c-arrays',
   '-cppcoreguidelines-pro-bounds-array-to-pointer-decay',
   '-bugprone-easily-swappable-parameters'
 ]

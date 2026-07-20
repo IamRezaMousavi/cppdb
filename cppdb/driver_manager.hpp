@@ -2,7 +2,6 @@
 #define CPPDB_DRIVER_MANAGER_HPP
 
 #include <cppdb/backend.hpp>
-#include <cppdb/defs.h>
 #include <cppdb/utils.hpp>
 
 #include <memory>
