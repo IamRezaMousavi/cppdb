@@ -16,8 +16,8 @@ public:
 	connection_specific_data(const connection_specific_data &) = delete;
 	void operator=(const connection_specific_data &) = delete;
 
-	connection_specific_data() = default;
-	virtual ~connection_specific_data() = default;
+	connection_specific_data();
+	virtual ~connection_specific_data();
 
 private:
 	struct data;

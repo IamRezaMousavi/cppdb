@@ -35,6 +35,10 @@ set(CPPDB_SRC
 add_library(${PROJECT_NAME} STATIC ${CPPDB_SRC})
 add_library(cppdb::cppdb ALIAS ${PROJECT_NAME})
 
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package(Threads)
+target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads)
+
 target_compile_definitions(
   ${PROJECT_NAME} PRIVATE CPPDB_MAJOR=${PROJECT_VERSION_MAJOR} CPPDB_MINOR=${PROJECT_VERSION_MINOR}
                           CPPDB_PATCH=${PROJECT_VERSION_PATCH} CPPDB_VERSION="${PROJECT_VERSION}")
@@ -59,6 +63,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(WITH_SQLITE)
   find_package(SQLite3 REQUIRED)
+  if(NOT TARGET SQLite3::SQLite3) # CMake < 4.3
+    add_library(SQLite3::SQLite3 ALIAS SQLite::SQLite3)
+  endif()
+
   add_library(${PROJECT_NAME}_sqlite3 INTERFACE)
   target_link_libraries(${PROJECT_NAME}_sqlite3 INTERFACE SQLite3::SQLite3)
   add_library(cppdb::sqlite3 ALIAS ${PROJECT_NAME}_sqlite3)

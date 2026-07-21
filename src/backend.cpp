@@ -256,4 +256,7 @@ std::shared_ptr<connection> driver::connect(const connection_info &cs) {
 
 struct connection_specific_data::data {};
 
+connection_specific_data::connection_specific_data() {}
+connection_specific_data::~connection_specific_data() {}
+
 } // namespace cppdb
