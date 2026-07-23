@@ -388,7 +388,7 @@ public:
 
 	bool active();
 	void set_size(size_t n);
-	void put(statement *p_in);
+	void put(const std::shared_ptr<statement> &p);
 	void clear();
 	std::shared_ptr<statement> fetch(const std::string &q);
 

@@ -22,7 +22,7 @@ void statement::dispose(statement *p) {
 	statements_cache *cache = p->cache_;
 	p->cache_ = nullptr;
 	if (cache)
-		cache->put(p);
+		cache->put(make_stmt(p));
 	else
 		delete p;
 }
@@ -68,7 +68,7 @@ struct statements_cache::data {
 
 	std::shared_ptr<statement> fetch(const std::string &query) {
 		std::shared_ptr<statement> st;
-		statements_type::iterator p = statements.find(query);
+		auto p = statements.find(query);
 		if (p == statements.end())
 			return st;
 		st = p->second.stat;
@@ -91,13 +91,10 @@ void statements_cache::set_size(size_t n) {
 		d->max_size = n;
 	}
 }
-void statements_cache::put(statement *p_in) {
-	if (!active()) {
-		delete p_in;
-		p_in = nullptr;
-	}
-	std::shared_ptr<statement> p = make_stmt<statement>(p_in);
-	p->reset();
+void statements_cache::put(const std::shared_ptr<statement> &p) {
+	if (!active())
+		return;
+	p->reset(); // cleaning the statement data
 	d->insert(p);
 }
 std::shared_ptr<statement> statements_cache::fetch(const std::string &q) {
