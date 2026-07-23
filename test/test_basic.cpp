@@ -1,4 +1,8 @@
 #include <cppdb/connection_specific.hpp>
+#include <cppdb/drivers/mysql_backend.hpp>
+#include <cppdb/drivers/odbc_backend.hpp>
+#include <cppdb/drivers/postgres_backend.hpp>
+#include <cppdb/drivers/sqlite3_backend.hpp>
 #include <cppdb/frontend.hpp>
 
 #include <iostream>
@@ -37,6 +41,15 @@ struct functor_caller {
 		call_counter++;
 	}
 };
+
+template <typename T>
+std::ostream &operator<<(std::ostream &os, const cppdb::Optional<T> &opt) {
+	if (opt.has_value())
+		os << opt.value();
+	else
+		os << "nullopt";
+	return os;
+}
 
 int main(int argc, char **argv) {
 	std::string cs = "sqlite3:db=db.db";
@@ -93,7 +106,7 @@ int main(int argc, char **argv) {
 		}
 		{
 			cppdb::statement stat = sql << "insert into test(n,f,t,name) values(?,?,?,?)" << cppdb::Optional<int>(10)
-										<< cppdb::Optional<float>(3.1415926565) << cppdb::Optional<std::tm>(t)
+										<< cppdb::Optional<float>(cppdb::nullopt) << cppdb::Optional<std::tm>(t)
 										<< cppdb::Optional<std::string>("Hello \'World\'") << cppdb::exec;
 			rowid = stat.sequence_last("test_id_seq");
 			std::cout << "[INSERT] ID=" << rowid << " | affected=" << stat.affected() << "\n";
@@ -117,12 +130,12 @@ int main(int argc, char **argv) {
 			std::cout << "[SELECT RESULTS]\n";
 			std::cout << "id | n | f | name | time\n";
 			std::cout << "----------------------------------------\n";
-			std::cout << id << " | " << k << " | " << f.value() << " | " << name << " | " << asctime(&atime) << '\n';
+			std::cout << id << " | " << k << " | " << f << " | " << name << " | " << asctime(&atime) << '\n';
 
 			TEST(id == n + 1);
 			TEST(k == 10);
-			TEST(n == 0 ? f.value() == 3.1415926565 : f.value() == -1);
-			TEST(n == 0 ? !f.has_value() : f.has_value());
+			TEST(n == 0 ? f.value() == 3.1415926565 : !f.has_value());
+			TEST(n == 0 ? f.has_value() : !f.has_value());
 			TEST(asctime(&atime) == torig);
 			TEST(name == "Hello 'World'");
 			n++;

@@ -1263,7 +1263,7 @@ struct register_mysql {
 	register_mysql() {
 		driver_manager::instance().install_driver("mysql", std::make_shared<mysql_backend::driver>());
 	}
-} reg;
+} reg_mysql;
 
 } // namespace
 

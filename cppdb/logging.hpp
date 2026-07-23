@@ -1,10 +1,10 @@
 #ifndef CPPDB_LOGGING_HPP
 #define CPPDB_LOGGING_HPP
 
+#include <cstdint>
 #include <memory>
 #include <sstream>
 #include <string>
-#include <cstdint>
 
 namespace cppdb {
 

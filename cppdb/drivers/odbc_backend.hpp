@@ -890,12 +890,12 @@ public:
 
 	std::string conn_str(const connection_info &ci) {
 		std::string str;
-		for (auto p = ci.properties.begin(); p != ci.properties.end(); p++) {
-			if (p->first.empty() || p->first[0] == '@')
+		for (const auto &p : ci.properties) {
+			if (p.first.empty() || p.first[0] == '@')
 				continue;
-			str += p->first;
+			str += p.first;
 			str += "=";
-			str += p->second;
+			str += p.second;
 			str += ";";
 		}
 		return str;
@@ -1004,7 +1004,7 @@ struct register_odbc {
 	register_odbc() {
 		driver_manager::instance().install_driver("odbc", std::make_shared<odbc_backend::driver>());
 	}
-} reg;
+} reg_odbc;
 
 } // namespace
 

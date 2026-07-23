@@ -92,6 +92,7 @@ public:
 	explicit connection_info(const std::string &cs) : connection_string(cs) {
 		properties = parse_connection_string(cs);
 		driver = properties["driver"];
+		properties.erase("driver");
 	}
 };
 

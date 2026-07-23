@@ -404,7 +404,7 @@ struct register_sqlite3 {
 	register_sqlite3() {
 		driver_manager::instance().install_driver("sqlite3", std::make_shared<sqlite3_backend::driver>());
 	}
-} reg;
+} reg_sqlite3;
 
 } // namespace
 

@@ -590,14 +590,13 @@ public:
 		return do_escape(b, e - b);
 	}
 	std::string pq_string(const connection_info &ci) {
-		std::map<std::string, std::string>::const_iterator p;
 		std::string pq_str;
-		for (p = ci.properties.begin(); p != ci.properties.end(); p++) {
-			if (p->first.empty() || p->first[0] == '@')
+		for (const auto &p : ci.properties) {
+			if (p.first.empty() || p.first[0] == '@')
 				continue;
-			pq_str += p->first;
+			pq_str += p.first;
 			pq_str += "='";
-			pq_str += escape_for_conn(p->second);
+			pq_str += escape_for_conn(p.second);
 			pq_str += "' ";
 		}
 		return pq_str;
@@ -670,9 +669,9 @@ namespace {
 
 struct register_postgresql {
 	register_postgresql() {
-		driver_manager::instance().install_driver("postgresql", std::make_shared<postgresql_backend::driver>());
+		driver_manager::instance().install_driver("postgresql", std::make_shared<postgresql::driver>());
 	}
-} reg;
+} reg_postgresql;
 
 } // namespace
 

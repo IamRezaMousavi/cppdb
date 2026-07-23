@@ -1,3 +1,4 @@
+#include <cppdb/drivers/mysql_backend.hpp>
 #include <cppdb/frontend.hpp>
 
 #include <stdlib.h>
