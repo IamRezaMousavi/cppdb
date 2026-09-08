@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.14)
-project(cppdb VERSION 0.5.2)
+project(cppdb VERSION 0.6.0)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+# Check if cppdb is the main project
+set(CPPDB_IS_MAIN_PROJECT OFF)
+if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  set(CPPDB_IS_MAIN_PROJECT ON)
+endif()
 
 option(WITH_SQLITE "Enable SQLite backend" OFF)
 option(WITH_MYSQL "Enable MySQL backend" ON)
@@ -9,6 +15,7 @@ option(WITH_PQ "Enable PostgreSQL backend" OFF)
 option(WITH_ODBC "Enable ODBC backend" OFF)
 option(WITH_TEST "Enable Tests" OFF)
 option(WITH_EXAMPLE "Enable Examples" OFF)
+option(WITH_INSTALL "Add install step" ${CPPDB_IS_MAIN_PROJECT})
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -117,12 +124,13 @@ if(WITH_EXAMPLE)
   target_link_libraries(example_logging cppdb::cppdb cppdb::mysql)
 endif()
 
-include(GNUInstallDirs)
+if(WITH_INSTALL)
+  include(GNUInstallDirs)
+  install(
+    TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-install(
-  TARGETS ${PROJECT_NAME}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/cppdb DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+  install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/cppdb DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif()
